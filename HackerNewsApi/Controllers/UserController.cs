@@ -20,10 +20,25 @@ namespace HackerNewsApi.Controllers
             _context = context;
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<User>> GetUserById(Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+
         [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
-        { 
-                return Ok(await _context.Users.ToListAsync());
+
+        {
+            return Ok(await _context.Users.ToListAsync());
+
         }
+
     }
 }
