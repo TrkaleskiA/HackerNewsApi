@@ -1,4 +1,4 @@
-﻿namespace HackerNewsApi.Model
+﻿namespace HackerNewsApi.Models
 {
     public class LoginModel
     {

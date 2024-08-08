@@ -5,7 +5,7 @@ using HackerNews.DataAccess;
 using HackerNews.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using HackerNewsApi.Model;
+using HackerNewsApi.Models;
 
 namespace HackerNewsApi.Controllers
 {
