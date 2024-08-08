@@ -5,6 +5,7 @@ using HackerNews.DataAccess;
 using HackerNews.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using HackerNewsApi.Model;
 
 namespace HackerNewsApi.Controllers
 {
@@ -40,7 +41,6 @@ namespace HackerNewsApi.Controllers
 
         }
 
-
         [HttpPost("register")]
         public async Task<ActionResult<User>> RegisterUser(User user)
         {
@@ -53,5 +53,22 @@ namespace HackerNewsApi.Controllers
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
 
+
+        [HttpPost("login")]
+        public async Task<ActionResult<User>> Login([FromBody] LoginModel loginModel)
+        {
+            // Find the user by username
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == loginModel.Username);
+
+            if (user == null || user.Password != loginModel.Password)
+            {
+                return Unauthorized("Invalid username or password");
+            }
+
+            // Return the user information (excluding the password)
+            return Ok(new { user.Id, user.Username, user.Nickname, user.IsAdmin });
+        }
+
     }
+
 }
