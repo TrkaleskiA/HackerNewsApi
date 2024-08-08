@@ -40,5 +40,18 @@ namespace HackerNewsApi.Controllers
 
         }
 
+
+        [HttpPost("register")]
+        public async Task<ActionResult<User>> RegisterUser(User user)
+        {
+            user.Id = Guid.NewGuid();
+            user.IsAdmin = false;
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+        }
+
     }
 }
