@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import HackerNewsHeader from './HackerNewsHeader'; // Import the new header
 
 function HackerNews() {
     const [nickname, setNickname] = useState('');
@@ -23,6 +24,7 @@ function HackerNews() {
 
     return (
         <>
+            <HackerNewsHeader />
             <div>
                 <p>Hello {nickname}!</p>
                 <button onClick={handleLogout}>Logout</button>

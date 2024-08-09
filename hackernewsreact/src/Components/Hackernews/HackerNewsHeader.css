@@ -1,0 +1,77 @@
+/* HackerNewsHeader.css */
+
+.navbar {
+    background-color: white;
+    padding: 10px 20px;
+}
+
+    .navbar .container-fluid {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+.search-container {
+    display: flex;
+    align-items: center;
+    border: 2px solid #ccc;
+    border-radius: 30px;
+    padding: 5px 10px;
+    width: 500px;
+    max-width: 500px;
+    margin-left: 150px;
+}
+
+    .search-container input {
+        border: none;
+        outline: none;
+        width: 100%;
+        padding: 5px 10px;
+    }
+
+    .search-container button {
+        background: none;
+        border: none;
+        color: #ff6600;
+        cursor: pointer;
+    }
+
+    .search-container i {
+        font-size: 1.2em;
+    }
+
+.vertical-line {
+    border-left: 1px solid #ccc;
+    height: 30px; /* Adjust height as needed */
+}
+
+.navbar a {
+    color: silver;
+    height: 90%;
+}
+
+    .navbar a:hover {
+        color: gray;
+    }
+
+.nav-link.active {
+    border-bottom: 2px solid orangered;
+    color: gray;
+}
+
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link.show {
+    color: gray;
+}
+
+.form-check-input:checked {
+    background: orangered;
+    border-color: lightgray;
+}
+
+.navbar-toggler {
+    background: none;
+    border: none;
+}
+
+
