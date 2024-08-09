@@ -69,6 +69,14 @@ namespace HackerNewsApi.Controllers
             return Ok(new { user.Id, user.Username, user.Nickname, user.IsAdmin });
         }
 
+        [HttpGet("check-username/{username}")]
+        public async Task<ActionResult<bool>> CheckUsernameAvailability(string username)
+        {
+            var userExists = await _context.Users.AnyAsync(u => u.Username == username);
+            return Ok(!userExists); // Returns true if username is available, false otherwise
+        }
+
+
     }
 
 }
