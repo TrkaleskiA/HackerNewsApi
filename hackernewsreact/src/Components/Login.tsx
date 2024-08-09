@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import Header from './Header';
 
-const Login: React.FC = () => {
+const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
@@ -35,8 +36,10 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div>
-            <h2>Login</h2>
+        <>
+        <Header />
+            <div>
+                <h2 style={{ color : 'orange' }}>Login</h2>
             <input
                 type="text"
                 placeholder="Username"
@@ -51,7 +54,8 @@ const Login: React.FC = () => {
             />
             <button onClick={handleLogin}>Login</button>
             {message && <p>{message}</p>}
-        </div>
+            </div>
+        </>
     );
 };
 

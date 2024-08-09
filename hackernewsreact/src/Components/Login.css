@@ -1,0 +1,27 @@
+input[type="text"], input[type="password"] {
+    border: 1px solid #ccc;
+    padding: 8px;
+    margin: 10px 0;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 4px; /* Rounded corners */
+    background-color: white; /* Background color for input fields */
+}
+
+button {
+    background-color: orange;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px 0;
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer;
+}
+
+    button:hover {
+        background-color: #e69500; /* Darker shade of orange for hover */
+    }
