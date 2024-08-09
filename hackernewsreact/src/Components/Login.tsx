@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
-const Login: React.FC = () => {
+const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Check if the user is already logged in
-        const nickname = Cookies.get('nickname');
-        if (nickname) {
+        const userCookie = Cookies.get('user');
+        if (userCookie) {
             navigate('/hackernews'); // Redirect to HackerNews.tsx if logged in
         }
     }, [navigate]);
@@ -27,7 +26,7 @@ const Login: React.FC = () => {
 
         if (response.ok) {
             const data = await response.json();
-            Cookies.set('nickname', data.nickname, { expires: 1 }); // Save nickname in cookie for 1 day
+            Cookies.set('user', JSON.stringify(data), { expires: 1 }); // Save user data in cookie for 1 day
             navigate('/hackernews'); // Redirect to HackerNews.tsx
         } else {
             setMessage('Login failed. Please check your credentials.');

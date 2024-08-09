@@ -1,14 +1,39 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
-const Register: React.FC = () => {
+const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [nickname, setNickname] = useState('');
     const [message, setMessage] = useState('');
+    const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null); // Track username availability
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const userCookie = Cookies.get('user');
+        if (userCookie) {
+            navigate('/hackernews'); // Redirect to HackerNews.tsx if logged in
+        }
+    }, [navigate]);
+
+    const checkUsernameAvailability = async () => {
+        const response = await fetch(`http://localhost:5234/User/check-username/${username}`);
+        if (response.ok) {
+            const isAvailable = await response.json();
+            setIsUsernameAvailable(isAvailable);
+            setMessage(isAvailable ? 'Username is available.' : 'Username is already taken.');
+        } else {
+            setMessage('Failed to check username availability.');
+        }
+    };
+
     const handleRegister = async () => {
+        if (isUsernameAvailable === false) {
+            setMessage('Username is already taken. Please choose another username.');
+            return;
+        }
+
         const response = await fetch('http://localhost:5234/User/register', {
             method: 'POST',
             headers: {
@@ -18,18 +43,12 @@ const Register: React.FC = () => {
         });
 
         if (response.ok) {
+            const data = await response.json();
+            Cookies.set('user', JSON.stringify(data), { expires: 1 }); // Save user data in cookie for 1 day
             setMessage('Registration successful!');
-            navigate('/hackernews'); // Redirect to HackerNews.tsx
+            navigate('/login');
         } else {
             setMessage('Registration failed.');
-        }
-    };
-
-    const checkUsernameAvailability = async () => {
-        const response = await fetch(`http://localhost:5234/User/check-username/${username}`);
-        if (response.ok) {
-            const isAvailable = await response.json();
-            setMessage(isAvailable ? 'Username is available.' : 'Username is already taken.');
         }
     };
 

@@ -47,7 +47,9 @@ if (app.Environment.IsDevelopment())
 // Enable CORS
 app.UseCors("AllowAllOrigins");
 
-app.UseStaticFiles();
+// Remove the static files middleware
+// app.UseStaticFiles();
+
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
