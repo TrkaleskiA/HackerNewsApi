@@ -13,13 +13,13 @@
 
 .search-container {
     display: flex;
+    margin-left: 150px;
     align-items: center;
     border: 2px solid #ccc;
     border-radius: 30px;
     padding: 5px 10px;
     width: 500px;
     max-width: 500px;
-    margin-left: 150px;
 }
 
     .search-container input {
@@ -39,6 +39,7 @@
     .search-container i {
         font-size: 1.2em;
     }
+
 
 .vertical-line {
     border-left: 1px solid #ccc;
