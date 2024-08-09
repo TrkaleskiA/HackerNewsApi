@@ -22,10 +22,12 @@ function HackerNews() {
     };
 
     return (
-        <div>
-            <p>Hello {nickname}!</p>
-            <button onClick={handleLogout}>Logout</button>
-        </div>
+        <>
+            <div>
+                <p>Hello {nickname}!</p>
+                <button onClick={handleLogout}>Logout</button>
+            </div>
+        </>
     );
 }
 

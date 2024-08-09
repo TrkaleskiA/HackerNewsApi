@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
+import './Login.css';
 import Cookies from 'js-cookie';
 
 const Register = () => {
@@ -53,30 +55,33 @@ const Register = () => {
     };
 
     return (
-        <div>
-            <h2>Register</h2>
-            <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                onBlur={checkUsernameAvailability} // Check username availability on blur
-            />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <input
-                type="text"
-                placeholder="Nickname"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-            />
-            <button onClick={handleRegister}>Register</button>
-            {message && <p>{message}</p>}
-        </div>
+        <>
+            <Header/>
+            <div>
+                <h2 style={{ color: 'orange'}}>Register</h2>
+                <input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    onBlur={checkUsernameAvailability} // Check username availability on blur
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Nickname"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                />
+                <button onClick={handleRegister}>Register</button>
+                {message && <p>{message}</p>}
+            </div>
+        </>
     );
 };
 
