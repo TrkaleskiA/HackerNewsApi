@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import HackerNewsHeader from './HackerNewsHeader'; // Import the new header
+import Sidebar from './Sidebar';
+import './HackerNews.css';
 
 function HackerNews() {
     const [nickname, setNickname] = useState('');
@@ -25,6 +27,12 @@ function HackerNews() {
     return (
         <>
             <HackerNewsHeader />
+            <div className="container-fluid mt-3 body">
+                <div className="row">
+                    <Sidebar />
+                </div>
+            </div>
+            
             <div>
                 <p>Hello {nickname}!</p>
                 <button onClick={handleLogout}>Logout</button>

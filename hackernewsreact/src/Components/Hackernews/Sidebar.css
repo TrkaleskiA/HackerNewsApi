@@ -1,0 +1,77 @@
+.div-list {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.custom-list li {
+    margin: 10px 0 0 20px;
+    position: relative;
+    list-style: none;
+    padding-left: 25px;
+}
+
+    .custom-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+.custom-list .news::before {
+    background-image: url('photos/news.png');
+}
+
+.custom-list .hot::before {
+    background-image: url('photos/danger.png');
+}
+
+.custom-list .show-hn::before {
+    background-image: url('photos/promotion.png');
+}
+
+.custom-list .ask-hn::before {
+    background-image: url('photos/question.png');
+}
+
+.custom-list .polls::before {
+    background-image: url('photos/bulb.png');
+}
+
+.custom-list .jobs::before {
+    background-image: url('photos/money.png');
+}
+
+.custom-list .starred::before {
+    background-image: url('photos/star.png');
+}
+
+.custom-list a {
+    text-decoration: none;
+    color: black;
+}
+
+.custom-list {
+    padding-left: 0px;
+}
+
+.custom-list-div {
+    padding: 5px 0 10px 0;
+}
+
+.custom-list .custom-list-div:hover {
+    background-color: darkgray;
+}
+
+.custom-list .custom-list-div.active {
+    background-color: darkgray;
+    
+}
+
+.custom-list .custom-list-div{
+    width: 250px;
+}
