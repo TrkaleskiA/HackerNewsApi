@@ -4,8 +4,12 @@ input[type="text"], input[type="password"] {
     margin: 10px 0;
     width: 100%;
     box-sizing: border-box;
-    border-radius: 4px; /* Rounded corners */
-    background-color: white; /* Background color for input fields */
+    border-radius: 4px; 
+    background-color: white; 
+}
+input {
+    max-width: 420px;
+    display:block;
 }
 
 button {
@@ -18,10 +22,15 @@ button {
     display: inline-block;
     font-size: 16px;
     margin: 10px 0;
-    border-radius: 4px; /* Rounded corners */
+    border-radius: 4px; 
     cursor: pointer;
 }
 
     button:hover {
-        background-color: #e69500; /* Darker shade of orange for hover */
+        background-color: #e69500; 
+        color: silver;
+    }
+
+    h3{
+        color: gray;
     }
