@@ -1,0 +1,18 @@
+.results {
+    padding: 10px 0 10px 25px;
+}
+.share1 {
+    width: 20px;
+    height: 20px;
+    margin-top: 25px;
+    margin-left: 5px;
+}
+.form-check-input:checked {
+    background: orangered;
+    border-color: lightgray;
+}
+.form-check-input:checked {
+    background: orangered;
+    border-radius: 50%; /* Makes it circular */
+    box-shadow: inset 0 0 0 3px white;
+}

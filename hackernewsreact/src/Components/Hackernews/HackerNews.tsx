@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import HackerNewsHeader from './HackerNewsHeader'; // Import the new header
 import Sidebar from './Sidebar';
 import './HackerNews.css';
+import Topbar from './Topbar';
 
 function HackerNews() {
     const [nickname, setNickname] = useState('');
@@ -27,9 +28,14 @@ function HackerNews() {
     return (
         <>
             <HackerNewsHeader />
-            <div className="container-fluid mt-3 body">
+            <div className="container-fluid body">
                 <div className="row">
-                    <Sidebar />
+                    <div className="col-lg-2 col-md-3 col-sm-12 mb-3 pt-3 div-list">
+                        <Sidebar />
+                    </div>
+                    <div className="col-lg-10 col-md-9 col-sm-12 main-div">
+                        <Topbar/>
+                    </div>
                 </div>
             </div>
             
