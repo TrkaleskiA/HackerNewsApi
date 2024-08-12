@@ -38,19 +38,20 @@ const Login = () => {
         <>
         <Header />
             <div>
-                <h2 style={{ color : 'orange' }}>Login</h2>
-            <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-            />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
+                <h2 style={{ color: 'orange' }}>Login</h2>
+                <h3>Username:<input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                /></h3>
+            
+                <h3>Password:<input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                /></h3>
             <button onClick={handleLogin}>Login</button>
             {message && <p>{message}</p>}
             </div>

@@ -59,25 +59,25 @@ const Register = () => {
             <Header/>
             <div>
                 <h2 style={{ color: 'orange'}}>Register</h2>
-                <input
+                <h3>Username:<input
                     type="text"
                     placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     onBlur={checkUsernameAvailability} // Check username availability on blur
-                />
-                <input
+                /></h3>
+                <h3>Password:<input
                     type="password"
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                />
-                <input
+                /></h3>
+                <h3>Name:<input
                     type="text"
                     placeholder="Nickname"
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
-                />
+                /></h3>
                 <button onClick={handleRegister}>Register</button>
                 {message && <p>{message}</p>}
             </div>

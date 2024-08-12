@@ -8,14 +8,15 @@
         background-color: orange;
         border-color: orange;
         color: white;
-        margin-right: 10px; /* Add space between the buttons */
+        margin-right: 10px; 
         border-radius: 10px;
         padding: 5px 10px 5px 10px;
     }
 
         .navbar .btn-primary:hover, .navbar .btn-secondary:hover {
-            background-color: #e69500; /* Darker shade of orange for hover */
+            background-color: #e69500; 
             border-color: #e69500;
+            color:lightgray;
         }
 
 .container-fluid {
