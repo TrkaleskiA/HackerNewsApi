@@ -66,6 +66,21 @@ namespace HackerNews.DataAccess.Migrations
                 name: "IX_Comments_ParentId",
                 table: "Comments",
                 column: "ParentId");
+
+            migrationBuilder.InsertData(
+        table: "Stories",
+        columns: new[] { "Id", "Title", "Url", "By", "Descendants", "Score", "Time", "Type" },
+        values: new object[]
+        {
+            8863L,
+            "My YC app: Dropbox - Throw away your USB drive",
+            "http://www.getdropbox.com/u/2/screencast.html",
+            "dhouston",
+            71,
+            111,
+            1175714200L,
+            "story"
+        });
         }
 
         /// <inheritdoc />

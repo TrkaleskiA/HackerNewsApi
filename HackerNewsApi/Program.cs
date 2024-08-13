@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using HackerNews.DataAccess.Repository.RepositoryInterfaces;
 using HackerNewsApi.Services.ServicesInterfaces;
+using HackerNewsApi.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,9 +23,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register repositories
+builder.Services.AddScoped<IStoryRepository, StoryRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Register services
+builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 // Configure Authentication (Cookie-based)
