@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HackerNews.DataAccess.Entities;
 
-namespace HackerNewsApi.Service
+namespace HackerNewsApi.Services.ServicesInterfaces
 {
     public interface IUserService
     {

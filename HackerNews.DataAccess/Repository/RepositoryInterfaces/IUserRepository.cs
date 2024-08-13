@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HackerNews.DataAccess.Repository
+namespace HackerNews.DataAccess.Repository.RepositoryInterfaces
 {
     public interface IUserRepository
     {

@@ -3,6 +3,8 @@ using HackerNews.DataAccess.Repository;
 using HackerNewsApi.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using HackerNews.DataAccess.Repository.RepositoryInterfaces;
+using HackerNewsApi.Services.ServicesInterfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);

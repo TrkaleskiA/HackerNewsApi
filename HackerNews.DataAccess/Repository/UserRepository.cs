@@ -1,4 +1,5 @@
 ﻿using HackerNews.DataAccess.Entities;
+using HackerNews.DataAccess.Repository.RepositoryInterfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

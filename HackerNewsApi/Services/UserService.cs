@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HackerNews.DataAccess.Entities;
-using HackerNews.DataAccess.Repository;
-using HackerNewsApi.Service;
+using HackerNews.DataAccess.Repository.RepositoryInterfaces;
+using HackerNewsApi.Services.ServicesInterfaces;
 
 namespace HackerNewsApi.Service
 {

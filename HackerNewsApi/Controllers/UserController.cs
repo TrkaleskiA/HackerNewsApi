@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using HackerNews.DataAccess.Entities;
 using HackerNewsApi.Models;
-using HackerNewsApi.Service;
+using HackerNewsApi.Services.ServicesInterfaces;
 
 [Route("[controller]")]
 [ApiController]
