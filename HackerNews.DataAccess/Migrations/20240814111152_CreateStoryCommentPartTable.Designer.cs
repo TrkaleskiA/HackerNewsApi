@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HackerNews.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240813113423_StoryAndComment")]
-    partial class StoryAndComment
+    [Migration("20240814111152_CreateStoryCommentPartTable")]
+    partial class CreateStoryCommentPartTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,6 +63,42 @@ namespace HackerNews.DataAccess.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("HackerNews.DataAccess.Entities.Part", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("By")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("PollId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("Time")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PollId");
+
+                    b.ToTable("Part");
+                });
+
             modelBuilder.Entity("HackerNews.DataAccess.Entities.Story", b =>
                 {
                     b.Property<long>("Id")
@@ -75,7 +111,7 @@ namespace HackerNews.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Descendants")
+                    b.Property<int?>("Descendants")
                         .HasColumnType("int");
 
                     b.Property<int>("Score")
@@ -88,9 +124,8 @@ namespace HackerNews.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<string>("Url")
                         .IsRequired()
@@ -160,6 +195,17 @@ namespace HackerNews.DataAccess.Migrations
                     b.Navigation("Story");
                 });
 
+            modelBuilder.Entity("HackerNews.DataAccess.Entities.Part", b =>
+                {
+                    b.HasOne("HackerNews.DataAccess.Entities.Story", "Poll")
+                        .WithMany("Parts")
+                        .HasForeignKey("PollId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Poll");
+                });
+
             modelBuilder.Entity("HackerNews.DataAccess.Entities.Comment", b =>
                 {
                     b.Navigation("Kids");
@@ -168,6 +214,8 @@ namespace HackerNews.DataAccess.Migrations
             modelBuilder.Entity("HackerNews.DataAccess.Entities.Story", b =>
                 {
                     b.Navigation("Kids");
+
+                    b.Navigation("Parts");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,7 +5,7 @@
 namespace HackerNews.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class StoryAndComment : Migration
+    public partial class CreateStoryCommentPartTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,10 +19,10 @@ namespace HackerNews.DataAccess.Migrations
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     By = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Descendants = table.Column<int>(type: "int", nullable: false),
+                    Descendants = table.Column<int>(type: "int", nullable: true),
                     Score = table.Column<int>(type: "int", nullable: false),
                     Time = table.Column<long>(type: "bigint", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Type = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,6 +57,30 @@ namespace HackerNews.DataAccess.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Parts",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PollId = table.Column<long>(type: "bigint", nullable: false),
+                    Score = table.Column<int>(type: "int", nullable: false),
+                    Time = table.Column<long>(type: "bigint", nullable: false),
+                    By = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Part", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Part_Stories_PollId",
+                        column: x => x.PollId,
+                        principalTable: "Stories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_CommentId",
                 table: "Comments",
@@ -67,20 +91,10 @@ namespace HackerNews.DataAccess.Migrations
                 table: "Comments",
                 column: "ParentId");
 
-            migrationBuilder.InsertData(
-        table: "Stories",
-        columns: new[] { "Id", "Title", "Url", "By", "Descendants", "Score", "Time", "Type" },
-        values: new object[]
-        {
-            8863L,
-            "My YC app: Dropbox - Throw away your USB drive",
-            "http://www.getdropbox.com/u/2/screencast.html",
-            "dhouston",
-            71,
-            111,
-            1175714200L,
-            "story"
-        });
+            migrationBuilder.CreateIndex(
+                name: "IX_Parts_PollId",
+                table: "Parts",
+                column: "PollId");
         }
 
         /// <inheritdoc />
@@ -88,6 +102,9 @@ namespace HackerNews.DataAccess.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Comments");
+
+            migrationBuilder.DropTable(
+                name: "Parts");
 
             migrationBuilder.DropTable(
                 name: "Stories");
