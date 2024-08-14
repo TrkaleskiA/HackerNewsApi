@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-
+import './Stories.css';
 interface Story {
     id: number;
     title: string;

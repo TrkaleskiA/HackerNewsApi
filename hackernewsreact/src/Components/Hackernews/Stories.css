@@ -1,0 +1,79 @@
+
+.list-all {
+    margin-top: -10px;
+}
+
+    .list-all .story-img {
+        border: 0.1em solid lightgray;
+        border-radius: 5px;
+    }
+
+.d-flex h4 {
+    margin: 0;
+}
+
+.story-img {
+    margin-right: 10px;
+}
+
+.share1 {
+    width: 20px;
+    height: 20px;
+    margin-top: 25px;
+    margin-left: 5px;
+}
+
+.comment-section p {
+    margin: 0 10px 0 0;
+}
+
+.comment-section {
+    margin-top: 15px;
+}
+
+.chat {
+    width: 15px;
+}
+
+.share, .star {
+    width: 20px;
+}
+
+.star {
+    cursor: pointer;
+}
+
+    .star.starred {
+        filter: invert(85%) sepia(49%) saturate(859%) hue-rotate(0deg) brightness(107%) contrast(102%) drop-shadow(1px 1px 1px yellow);
+    }
+
+.story-url {
+    text-decoration: none;
+    color: gray;
+}
+
+    .story-url:hover {
+        color: #525252;
+    }
+
+.heart {
+    cursor: pointer;
+}
+
+    .heart img {
+        filter: grayscale(100%);
+        transition: filter 0.3s ease; /* Optional: smooth transition */
+    }
+
+    .heart.active img {
+        filter: invert(22%) sepia(96%) saturate(7452%) hue-rotate(1deg) brightness(104%) contrast(119%) drop-shadow(1px 1px 1px red);
+    }
+
+.comment-btn {
+    cursor: pointer;
+}
+
+.comments-container {
+    margin-left: 250px;
+    border-top: #f8f6f6 3px solid;
+}
