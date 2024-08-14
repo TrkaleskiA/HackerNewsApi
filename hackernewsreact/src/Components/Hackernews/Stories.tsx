@@ -60,7 +60,7 @@ const Stories = () => {
                                     {new Date(story.time * 1000).toLocaleString()}
                                 </span> |
                                 <a href={story.url} target="_blank" rel="noopener noreferrer">
-                                    {story.url ? new URL(story.url).hostname : ''}
+                                    {story.url /*? new URL(story.url).hostname : ''*/}
                                 </a>
                             </div>
                         </div>

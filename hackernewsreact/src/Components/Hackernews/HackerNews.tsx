@@ -28,6 +28,10 @@ function HackerNews() {
         navigate('/login');
     };
 
+    const handleAddStory = () => {
+        navigate('/addstory'); // Redirect to AddStory component
+    };
+
     return (
         <>
             <HackerNewsHeader />
@@ -49,7 +53,7 @@ function HackerNews() {
                 <button onClick={handleLogout}>Logout</button>
             </div>
             <div>
-                <button>Add new Story</button>
+                <button onClick={handleAddStory}>Add new Story</button>
             </div>
         </>
     );
