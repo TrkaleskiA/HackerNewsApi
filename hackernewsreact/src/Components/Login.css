@@ -13,7 +13,7 @@ input {
 }
 
 button {
-    background-color: orange;
+    background-color: orangered;
     border: none;
     color: white;
     padding: 10px 20px;
@@ -22,12 +22,12 @@ button {
     display: inline-block;
     font-size: 16px;
     margin: 10px 0;
-    border-radius: 4px; 
+    border-radius: 4px;
     cursor: pointer;
 }
 
     button:hover {
-        background-color: #e69500; 
+        background-color: #fc6025;
         color: silver;
     }
 

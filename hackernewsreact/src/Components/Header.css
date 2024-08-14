@@ -4,8 +4,8 @@
 }
 
     .navbar .btn-primary, .navbar .btn-secondary {
-        background-color: orange;
-        border-color: orange;
+        background-color: orangered;
+        border-color: orangered;
         color: white;
         margin-right: 10px; 
         border-radius: 10px;
@@ -13,9 +13,9 @@
     }
 
         .navbar .btn-primary:hover, .navbar .btn-secondary:hover {
-            background-color: #e69500; 
-            border-color: #e69500;
-            color:lightgray;
+            background-color: #fc6025;
+            border-color: #fc6025;
+            color: lightgray;
         }
 
 

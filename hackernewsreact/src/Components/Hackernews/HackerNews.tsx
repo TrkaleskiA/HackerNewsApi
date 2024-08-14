@@ -48,6 +48,9 @@ function HackerNews() {
                 <p>Hello {nickname}!</p>
                 <button onClick={handleLogout}>Logout</button>
             </div>
+            <div>
+                <button>Add new Story</button>
+            </div>
         </>
     );
 }

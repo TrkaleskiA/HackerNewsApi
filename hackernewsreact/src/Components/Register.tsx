@@ -58,7 +58,7 @@ const Register = () => {
         <>
             <Header/>
             <div>
-                <h2 style={{ color: 'orange'}}>Register</h2>
+                <h2 style={{ color: '#fc6025'}}>Register</h2>
                 <h3>Username:<input
                     type="text"
                     placeholder="Username"

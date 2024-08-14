@@ -38,7 +38,7 @@ const Login = () => {
         <>
         <Header />
             <div>
-                <h2 style={{ color: 'orange' }}>Login</h2>
+                <h2 style={{ color: '#fc6025' }}>Login</h2>
                 <h3>Username:<input
                     type="text"
                     placeholder="Username"
