@@ -25,10 +25,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Register repositories
 builder.Services.AddScoped<IStoryRepository, StoryRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPartRepository, PartRepository>();
 
 // Register services
 builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPartService, PartService>();
 
 // Configure Authentication (Cookie-based)
 builder.Services.AddAuthentication(options =>

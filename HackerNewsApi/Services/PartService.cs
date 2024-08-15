@@ -2,8 +2,9 @@
 using HackerNews.DataAccess.Repository.RepositoryInterfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HackerNewsApi.Services.ServicesInterfaces;
 
-namespace HackerNews.Api.Services
+namespace HackerNewsApi.Services
 {
     public class PartService : IPartService
     {
@@ -24,10 +25,20 @@ namespace HackerNews.Api.Services
             return _repository.GetAllPartsAsync();
         }
 
-        public Task AddPartsAsync(IEnumerable<Part> parts)
+        public async Task AddPartsAsync(IEnumerable<Part> parts)
         {
-            return _repository.AddPartsAsync(parts);
+            foreach (var part in parts)
+            {
+                // Perform necessary validation or adjustments here if needed
+                if (part.PollId <= 0)
+                {
+                    throw new ArgumentException("PollId is required.");
+                }
+            }
+
+            await _repository.AddPartsAsync(parts);
         }
+
 
         public Task UpdatePartAsync(Part part)
         {
@@ -37,6 +48,12 @@ namespace HackerNews.Api.Services
         public Task DeletePartAsync(long id)
         {
             return _repository.DeletePartAsync(id);
+        }
+
+        // Retrieve all parts for a specific poll
+        public async Task<IEnumerable<Part>> GetPartsByPollIdAsync(long pollId)
+        {
+            return await _repository.GetPartsByPollIdAsync(pollId);
         }
     }
 }

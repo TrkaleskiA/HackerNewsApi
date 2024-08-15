@@ -8,9 +8,9 @@ namespace HackerNews.DataAccess.Repository
 {
     public class CommentRepository : ICommentRepository
     {
-        private readonly DbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public CommentRepository(DbContext context)
+        public CommentRepository(ApplicationDbContext context)
         {
             _context = context;
         }

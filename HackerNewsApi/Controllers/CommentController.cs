@@ -1,10 +1,11 @@
-﻿using HackerNews.Api.Services;
+﻿using HackerNewsApi.Services;
 using HackerNews.DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HackerNewsApi.Services.ServicesInterfaces;
 
-namespace HackerNews.Api.Controllers
+namespace HackerNewsApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

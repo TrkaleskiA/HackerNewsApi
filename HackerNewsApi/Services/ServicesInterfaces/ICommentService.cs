@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace HackerNews.Api.Services
+namespace HackerNewsApi.Services.ServicesInterfaces
 {
     public interface ICommentService
     {

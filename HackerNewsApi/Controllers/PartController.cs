@@ -1,10 +1,11 @@
-﻿using HackerNews.Api.Services;
+﻿using HackerNewsApi.Services;
 using HackerNews.DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HackerNewsApi.Services.ServicesInterfaces;
 
-namespace HackerNews.Api.Controllers
+namespace HackerNewsApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -36,11 +37,17 @@ namespace HackerNews.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateParts(IEnumerable<Part> parts)
+        public async Task<ActionResult> CreateParts([FromBody] IEnumerable<Part> parts)
         {
+            if (parts == null || !parts.Any())
+            {
+                return BadRequest("Parts data is invalid or empty.");
+            }
+
             await _partService.AddPartsAsync(parts);
-            return CreatedAtAction(nameof(GetPart), new { id = parts }, parts);
+            return Ok(); // Or return CreatedAtAction if you need to return specific information
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePart(long id, Part part)

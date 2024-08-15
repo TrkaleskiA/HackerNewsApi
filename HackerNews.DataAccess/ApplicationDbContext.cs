@@ -14,6 +14,7 @@ namespace HackerNews.DataAccess
         public DbSet<User> Users { get; set; }
         public DbSet<Story> Stories { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Part> Parts { get; set; }
     }
 
     public class YourEntity

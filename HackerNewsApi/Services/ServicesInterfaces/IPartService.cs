@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace HackerNews.Api.Services
+namespace HackerNewsApi.Services.ServicesInterfaces
 {
     public interface IPartService
     {
@@ -11,5 +11,8 @@ namespace HackerNews.Api.Services
         Task AddPartsAsync(IEnumerable<Part> parts);
         Task UpdatePartAsync(Part part);
         Task DeletePartAsync(long id);
+
+        // New method for retrieving parts by poll ID
+        Task<IEnumerable<Part>> GetPartsByPollIdAsync(long pollId);
     }
 }

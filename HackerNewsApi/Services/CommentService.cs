@@ -1,10 +1,11 @@
 ﻿using HackerNews.DataAccess.Entities;
 using HackerNews.DataAccess.Repository;
 using HackerNews.DataAccess.Repository.RepositoryInterfaces;
+using HackerNewsApi.Services.ServicesInterfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace HackerNews.Api.Services
+namespace HackerNewsApi.Services
 {
     public class CommentService : ICommentService
     {

@@ -19,6 +19,7 @@ namespace HackerNews.DataAccess.Repository
         {
             return await _context.Stories
                 .Include(s => s.Kids)
+                .Include(s => s.Parts) // Include parts if needed
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
@@ -26,6 +27,7 @@ namespace HackerNews.DataAccess.Repository
         {
             return await _context.Stories
                 .Include(s => s.Kids)
+                .Include(s => s.Parts) // Include parts if needed
                 .ToListAsync();
         }
 
