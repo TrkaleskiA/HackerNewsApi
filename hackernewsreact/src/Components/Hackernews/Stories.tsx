@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Stories.css';
+
+// Define the type for the filter
+type FilterType = 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
+
 interface Story {
     id: number;
     title: string;
@@ -9,10 +13,15 @@ interface Story {
     descendants: number;
     score: number;
     time: number;
-    type: string;
+    type: number; // Update type to number
 }
 
-const Stories = () => {
+// Update the component to accept the filter prop
+interface StoriesProps {
+    filter: FilterType;
+}
+
+const Stories = ({ filter }: StoriesProps) => {
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -20,7 +29,34 @@ const Stories = () => {
     useEffect(() => {
         axios.get('http://localhost:5234/api/story') // Adjust the API URL as needed
             .then(response => {
-                setStories(response.data);
+                let filteredStories = response.data;
+
+                // Apply the filter based on filter type
+                switch (filter) {
+                    case 'ask-hn':
+                        filteredStories = response.data.filter((story: Story) => story.title.startsWith('Ask HN:'));
+                        break;
+                    case 'show-hn':
+                        filteredStories = response.data.filter((story: Story) => story.title.startsWith('Show HN:'));
+                        break;
+                    case 'all':
+                        // No additional filtering for 'all'
+                        break;
+                    case 'hot':
+                        filteredStories = response.data.filter((story: Story) => story.type === 1);
+                        break;
+                    case 'poll':
+                        filteredStories = response.data.filter((story: Story) => story.type === 3);
+                        break;
+                    case 'job':
+                        filteredStories = response.data.filter((story: Story) => story.type === 2);
+                        break;
+                    case 'starred':
+                        // Add any additional filtering logic for 'starred' if needed
+                        break;
+                }
+
+                setStories(filteredStories);
                 setLoading(false);
             })
             .catch(error => {
@@ -28,7 +64,7 @@ const Stories = () => {
                 setError('Failed to load stories');
                 setLoading(false);
             });
-    }, []);
+    }, [filter]); // Depend on filter to refetch when it changes
 
     if (loading) {
         return <div>Loading stories...</div>;
@@ -60,7 +96,7 @@ const Stories = () => {
                                     {new Date(story.time * 1000).toLocaleString()}
                                 </span> |
                                 <a href={story.url} target="_blank" rel="noopener noreferrer">
-                                    {story.url /*? new URL(story.url).hostname : ''*/}
+                                    {story.url}
                                 </a>
                             </div>
                         </div>

@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import HackerNewsHeader from './HackerNewsHeader'; // Import the new header
+import HackerNewsHeader from './HackerNewsHeader';
 import Sidebar from './Sidebar';
 import './HackerNews.css';
 import Topbar from './Topbar';
 import Stories from './Stories';
 
-
+// Define the type for the filter state
+type FilterType = 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
 
 function HackerNews() {
-    const [nickname, setNickname] = useState('');
+    const [nickname, setNickname] = useState<string>('');
+    const [filter, setFilter] = useState<FilterType>('all'); // State for filter
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,7 +21,7 @@ function HackerNews() {
             const user = JSON.parse(userCookie);
             setNickname(user.nickname);
         } else {
-            navigate('/login'); // Redirect to login if not logged in
+            navigate('/login');
         }
     }, [navigate]);
 
@@ -29,7 +31,12 @@ function HackerNews() {
     };
 
     const handleAddStory = () => {
-        navigate('/addstory'); // Redirect to AddStory component
+        navigate('/addstory');
+    };
+
+    // Function to handle filter change
+    const handleFilterChange = (filterType: FilterType) => {
+        setFilter(filterType);
     };
 
     return (
@@ -38,16 +45,15 @@ function HackerNews() {
             <div className="container-fluid body">
                 <div className="row">
                     <div className="col-lg-2 col-md-3 col-sm-12 mb-3 pt-3 div-list">
-                        <Sidebar />
+                        <Sidebar onFilterChange={handleFilterChange} />
                     </div>
                     <div className="col-lg-10 col-md-9 col-sm-12 main-div">
                         <Topbar />
-                        <Stories/>
+                        <Stories filter={filter} />
                     </div>
-
                 </div>
             </div>
-            
+
             <div>
                 <p>Hello {nickname}!</p>
                 <button onClick={handleLogout}>Logout</button>
