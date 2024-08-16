@@ -12,7 +12,7 @@ namespace HackerNewsApi.Services.ServicesInterfaces
         Task UpdatePartAsync(Part part);
         Task DeletePartAsync(long id);
 
-        // New method for retrieving parts by poll ID
         Task<IEnumerable<Part>> GetPartsByPollIdAsync(long pollId);
     }
+
 }
