@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HackerNews.DataAccess.Entities
 {
@@ -14,6 +15,7 @@ namespace HackerNews.DataAccess.Entities
         [Required]
         public long PollId { get; set; }  // Foreign key to the poll
 
+        [JsonIgnore]
         [ForeignKey(nameof(PollId))]
         public Story Poll { get; set; }  // Navigation property
 
