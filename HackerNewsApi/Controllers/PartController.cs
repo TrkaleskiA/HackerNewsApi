@@ -21,7 +21,7 @@ namespace HackerNewsApi.Controllers
             _partService = partService;
         }
 
-        // GET: api/part
+        // GET: api/Part
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PartDto>>> GetAllParts()
         {
@@ -39,7 +39,7 @@ namespace HackerNewsApi.Controllers
             return Ok(partDtos);
         }
 
-        // GET: api/part/{id}
+        // GET: api/Part/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<PartDto>> GetPart(long id)
         {
@@ -63,7 +63,7 @@ namespace HackerNewsApi.Controllers
             return Ok(partDto);
         }
 
-        // POST: api/part
+        // POST: api/Part
         [HttpPost]
         public async Task<ActionResult> CreateParts([FromBody] IEnumerable<PartDto> partDtos)
         {
@@ -85,8 +85,32 @@ namespace HackerNewsApi.Controllers
             await _partService.AddPartsAsync(parts);
             return Ok();
         }
+        // GET: api/Part/byPollId/{pollId}
+        [HttpGet("byPollId/{pollId}")]
+        public async Task<ActionResult<IEnumerable<PartDto>>> GetPartsByPollId(long pollId)
+        {
+            var parts = await _partService.GetPartsByPollIdAsync(pollId);
+            if (parts == null || !parts.Any())
+            {
+                return NotFound("No parts found for the given poll ID.");
+            }
 
-        // PUT: api/part/{id}
+            var partDtos = parts.Select(p => new PartDto
+            {
+                Id = p.Id,
+                Text = p.Text,
+                PollId = p.PollId,
+                Score = p.Score,
+                Time = p.Time,
+                By = p.By,
+                Type = p.Type
+            });
+
+            return Ok(partDtos);
+        }
+
+
+        // PUT: api/Part/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePart(long id, [FromBody] PartDto partDto)
         {
@@ -110,7 +134,7 @@ namespace HackerNewsApi.Controllers
             return NoContent();
         }
 
-        // DELETE: api/part/{id}
+        // DELETE: api/Part/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePart(long id)
         {
