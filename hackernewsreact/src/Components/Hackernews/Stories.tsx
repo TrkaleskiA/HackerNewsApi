@@ -6,6 +6,17 @@ import './Stories.css';
 type FilterType = 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
 type TimePeriod = 'last-24h' | 'past-week' | 'past-month' | 'forever';
 type SortType = 'date' | 'popularity';
+
+
+interface Part {
+    id: number;
+    text: string;
+    pollId: number;
+    score: number;
+    time: number;
+    by: string;
+    type: string;
+}
 interface Story {
     id: number;
     title: string;
@@ -15,6 +26,7 @@ interface Story {
     score: number;
     time: number;
     type: number; // Update type to number
+    parts?: Part[];
 }
 
 // Update the component to accept the filter prop
@@ -108,7 +120,28 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                 console.log('Stories after time period filtering:', filteredStories);
                 setStories(filteredStories);
                 setLoading(false);
+
+
+                const fetchPollParts = async () => {
+                    const updatedStories = await Promise.all(filteredStories.map(async (story: Story) => {
+                        if (story.type === 3) {
+                            // Fetch parts for this poll
+                            const partsResponse = await axios.get(`http://localhost:5234/api/parts/${story.id}`);
+                            return { ...story, parts: partsResponse.data };
+                        }
+                        return story;
+                    }));
+                    setStories(updatedStories);
+                    setLoading(false);
+                };
+
+                fetchPollParts();
             })
+
+
+
+
+
             .catch(error => {
                 console.error('Error fetching stories:', error);
                 setError('Failed to load stories');
@@ -160,6 +193,16 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                         </div>
                     </div>
                     <div className="comments-container bg-white" style={{ display: 'block' }}></div>
+                    {story.type === 3 && story.parts && (
+                        <div className="poll-options bg-white">
+                            {story.parts.map(part => (
+                                <div key={part.id} className="poll-option">
+                                    <p>{part.text}</p>
+                                    <span>Score: {part.score}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )) : <p>No stories available</p>}
         </div>

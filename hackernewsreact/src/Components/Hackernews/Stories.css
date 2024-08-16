@@ -77,3 +77,12 @@
     margin-left: 250px;
     border-top: #f8f6f6 3px solid;
 }
+
+.poll-options {
+    margin-left: 110px;
+}
+
+.poll-option {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
