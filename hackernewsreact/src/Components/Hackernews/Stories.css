@@ -77,3 +77,14 @@
     margin-left: 250px;
     border-top: #f8f6f6 3px solid;
 }
+
+.heart {
+    width: 15px;
+    vertical-align: middle;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+    .heart.active {
+        filter: invert(22%) sepia(96%) saturate(7452%) hue-rotate(1deg) brightness(104%) contrast(119%) drop-shadow(1px 1px 1px red);
+    }

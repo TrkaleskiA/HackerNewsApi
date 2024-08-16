@@ -50,6 +50,7 @@ const formatTime = (timestamp: number) => {
 const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
+    const [likedStories, setLikedStories] = useState<Set<number>>(new Set());
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -116,6 +117,25 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
             });
     }, [filter, timePeriod, sort]); // Depend on filter to refetch when it changes
 
+    const handleHeartClick = (storyId: number) => {
+        setLikedStories(prevLikedStories => {
+            const newLikedStories = new Set(prevLikedStories);
+            if (newLikedStories.has(storyId)) {
+                newLikedStories.delete(storyId);
+                setStories(prevStories => prevStories.map(story =>
+                    story.id === storyId ? { ...story, score: story.score - 1 } : story
+                ));
+            } else {
+                newLikedStories.add(storyId);
+                setStories(prevStories => prevStories.map(story =>
+                    story.id === storyId ? { ...story, score: story.score + 1 } : story
+                ));
+            }
+            return newLikedStories;
+        });
+    };
+
+
     if (loading) {
         return <div>Loading stories...</div>;
     }
@@ -134,7 +154,12 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                             <p style={{ margin: 0 }}>{story.title}</p>
                             <div className="post-details" style={{ color: 'gray', fontSize: '0.9em' }}>
                                 <span>
-                                    <img src="photos/heart.png" style={{ width: '15px', verticalAlign: 'middle', marginRight: '5px' }} alt="Heart" />
+                                    <img
+                                        className={`heart ${likedStories.has(story.id) ? 'active' : ''}`}
+                                        src="photos/heart.png"
+                                        alt="Heart"
+                                        onClick={() => handleHeartClick(story.id)}
+                                    />
                                     {story.score} points
                                 </span> |
                                 <span>
