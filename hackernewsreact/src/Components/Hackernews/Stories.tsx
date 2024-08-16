@@ -63,6 +63,9 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
     const [likedStories, setLikedStories] = useState<Set<number>>(new Set());
+    const [visibleComments, setVisibleComments] = useState<Set<number>>(new Set());
+    const [newComment, setNewComment] = useState<string>('');
+    const [commentStoryId, setCommentStoryId] = useState<number | null>(null);
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -127,7 +130,7 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                     const updatedStories = await Promise.all(filteredStories.map(async (story: Story) => {
                         if (story.type === 3) {
                             // Fetch parts for this poll
-                            const partsResponse = await axios.get(`http://localhost:5234/api/parts/${story.id}`);
+                            const partsResponse = await axios.get(`http://localhost:5234/api/Part/byPollId/${story.id}`);
                             return { ...story, parts: partsResponse.data };
                         }
                         return story;
@@ -168,6 +171,34 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
         });
     };
 
+    const handleCommentClick = (storyId: number) => {
+        setVisibleComments(prev => {
+            const newVisibleComments = new Set(prev);
+            if (newVisibleComments.has(storyId)) {
+                newVisibleComments.delete(storyId);
+            } else {
+                newVisibleComments.add(storyId);
+            }
+            return newVisibleComments;
+        });
+        setCommentStoryId(storyId);
+    };
+
+    const handleCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setNewComment(event.target.value);
+    };
+
+    const handleCommentSubmit = () => {
+        if (newComment.trim() === '') return;
+        // Implement comment posting logic here
+        console.log('Comment for story ID:', commentStoryId, 'Comment:', newComment);
+        setNewComment('');
+        setVisibleComments(prev => {
+            const newVisibleComments = new Set(prev);
+            newVisibleComments.delete(commentStoryId!);
+            return newVisibleComments;
+        });
+    };
 
     if (loading) {
         return <div>Loading stories...</div>;
@@ -207,9 +238,10 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                                     {story.url}
                                 </a>
                             </div>
+                            
                         </div>
                         <div className="comment-section ms-auto d-flex align-items-center">
-                            <div style={{ display: 'inline' }} className="comment-btn" data-id={story.id}>
+                            <div style={{ display: 'inline' }} className="comment-btn" onClick={() => handleCommentClick(story.id)}>
                                 <img className="chat" src="photos/chat.png" alt="Chat" />
                                 <p style={{ display: 'inline' }} className="comment-button mb-0">{story.descendants || 0} comments</p>
                             </div>
@@ -217,19 +249,18 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                             <img className="star ms-2" src="photos/star.png" alt="Star" />
                         </div>
                     </div>
-                    <div className="comments-container bg-white" style={{ display: 'block' }}></div>
-                    {story.type === 3 && story.parts && (
-                        <div className="poll-options bg-white">
-                            {story.parts.map(part => (
-                                <div key={part.id} className="poll-option">
-                                    <p>{part.text}</p>
-                                    <span>Score: {part.score}</span>
-                                </div>
-                            ))}
+                    {visibleComments.has(story.id) && (
+                        <div className="comment-input mt-2">
+                            <textarea
+                                placeholder="Add a comment..."
+                                value={newComment}
+                                onChange={handleCommentChange}
+                            />
+                            <button onClick={handleCommentSubmit} className="submit-btn">Add Comment</button>
                         </div>
                     )}
                 </div>
-            )) : <p>No stories available</p>}
+            )) : <div>No stories found</div>}
         </div>
     );
 };

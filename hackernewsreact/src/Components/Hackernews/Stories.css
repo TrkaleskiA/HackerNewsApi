@@ -98,3 +98,22 @@
     padding: 10px;
     border-bottom: 1px solid #ddd;
 }
+
+.submit-btn {
+    background-color: orangered;
+    color: white;
+    border: none;
+    padding: 2px 8px; 
+    font-size: 0.8em; 
+    border-radius: 4px; 
+    cursor: pointer;
+    display: inline-block;
+}
+
+    .submit-btn:hover {
+        background-color: orangered;
+    }
+
+textarea{
+    display: inline-block;
+}
