@@ -9,10 +9,11 @@ import Stories from './Stories';
 
 // Define the type for the filter state
 type FilterType = 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
-
+type TimePeriod = 'last-24h' | 'past-week' | 'past-month' | 'forever';
 function HackerNews() {
     const [nickname, setNickname] = useState<string>('');
     const [filter, setFilter] = useState<FilterType>('all'); // State for filter
+    const [timePeriod, setTimePeriod] = useState<TimePeriod>('forever');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,6 +40,10 @@ function HackerNews() {
         setFilter(filterType);
     };
 
+    const handleTimePeriodChange = (period: TimePeriod) => {
+        setTimePeriod(period);
+    };
+
     return (
         <>
             <HackerNewsHeader />
@@ -48,8 +53,8 @@ function HackerNews() {
                         <Sidebar onFilterChange={handleFilterChange} />
                     </div>
                     <div className="col-lg-10 col-md-9 col-sm-12 main-div">
-                        <Topbar />
-                        <Stories filter={filter} />
+                        <Topbar onTimePeriodChange={handleTimePeriodChange}/>
+                        <Stories filter={filter} timePeriod={timePeriod} />
                     </div>
                 </div>
             </div>

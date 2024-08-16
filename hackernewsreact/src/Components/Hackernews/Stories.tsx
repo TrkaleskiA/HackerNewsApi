@@ -4,7 +4,7 @@ import './Stories.css';
 
 // Define the type for the filter
 type FilterType = 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
-
+type TimePeriod = 'last-24h' | 'past-week' | 'past-month' | 'forever';
 interface Story {
     id: number;
     title: string;
@@ -19,9 +19,10 @@ interface Story {
 // Update the component to accept the filter prop
 interface StoriesProps {
     filter: FilterType;
+    timePeriod: TimePeriod;
 }
 
-const Stories = ({ filter }: StoriesProps) => {
+const Stories = ({ filter, timePeriod }: StoriesProps) => {
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -53,6 +54,23 @@ const Stories = ({ filter }: StoriesProps) => {
                         break;
                     case 'starred':
                         // Add any additional filtering logic for 'starred' if needed
+                        break;
+                }
+
+                const currentTime = Date.now() / 1000; // Get current time in seconds
+                console.log(currentTime)
+                switch (timePeriod) {
+                    case 'last-24h':
+                        filteredStories = filteredStories.filter((story: Story) => currentTime - story.time <= 86400);
+                        break;
+                    case 'past-week':
+                        filteredStories = filteredStories.filter((story: Story) => currentTime - story.time <= 604800);
+                        break;
+                    case 'past-month':
+                        filteredStories = filteredStories.filter((story: Story) => currentTime - story.time <= 2592000);
+                        break;
+                    case 'forever':
+                        // No additional filtering for 'forever'
                         break;
                 }
 
