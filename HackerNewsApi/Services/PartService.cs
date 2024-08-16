@@ -29,7 +29,6 @@ namespace HackerNewsApi.Services
         {
             foreach (var part in parts)
             {
-                // Perform necessary validation or adjustments here if needed
                 if (part.PollId <= 0)
                 {
                     throw new ArgumentException("PollId is required.");
@@ -38,7 +37,6 @@ namespace HackerNewsApi.Services
 
             await _repository.AddPartsAsync(parts);
         }
-
 
         public Task UpdatePartAsync(Part part)
         {
@@ -50,10 +48,10 @@ namespace HackerNewsApi.Services
             return _repository.DeletePartAsync(id);
         }
 
-        // Retrieve all parts for a specific poll
         public async Task<IEnumerable<Part>> GetPartsByPollIdAsync(long pollId)
         {
             return await _repository.GetPartsByPollIdAsync(pollId);
         }
     }
+
 }

@@ -23,7 +23,7 @@ namespace HackerNews.DataAccess.Repository
 
         public async Task<IEnumerable<Part>> GetAllPartsAsync()
         {
-            return await _context.Set<Part>().ToListAsync();
+            return await _context.Set<Part>().AsNoTracking().ToListAsync();  // Add AsNoTracking() for read-only
         }
 
         public async Task AddPartsAsync(IEnumerable<Part> parts)
@@ -35,7 +35,6 @@ namespace HackerNews.DataAccess.Repository
                     throw new ArgumentException("PollId is required.");
                 }
 
-                // Ensure that the PollId exists
                 var exists = await _context.Set<Story>().AnyAsync(s => s.Id == part.PollId);
                 if (!exists)
                 {
@@ -67,6 +66,7 @@ namespace HackerNews.DataAccess.Repository
         {
             return await _context.Set<Part>()
                 .Where(p => p.PollId == pollId)
+                .AsNoTracking()  // Add AsNoTracking() for read-only
                 .ToListAsync();
         }
     }
