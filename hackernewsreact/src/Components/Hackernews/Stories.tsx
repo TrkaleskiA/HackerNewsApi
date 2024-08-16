@@ -5,6 +5,7 @@ import './Stories.css';
 // Define the type for the filter
 type FilterType = 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
 type TimePeriod = 'last-24h' | 'past-week' | 'past-month' | 'forever';
+type SortType = 'date' | 'popularity';
 interface Story {
     id: number;
     title: string;
@@ -20,9 +21,33 @@ interface Story {
 interface StoriesProps {
     filter: FilterType;
     timePeriod: TimePeriod;
+    sort: SortType;
 }
 
-const Stories = ({ filter, timePeriod }: StoriesProps) => {
+const formatTime = (timestamp: number) => {
+    const now = Date.now() / 1000;
+    let diff = Math.floor(now - timestamp);
+
+    const units = [
+        { label: 'second', value: 60 },
+        { label: 'minute', value: 60 },
+        { label: 'hour', value: 24 },
+        { label: 'day', value: 30 },
+        { label: 'month', value: 12 },
+        { label: 'year', value: Number.MAX_SAFE_INTEGER }
+    ];
+
+    for (let i = 0; i < units.length; i++) {
+        if (diff < units[i].value) {
+            return `${diff} ${units[i].label}${diff > 1 ? 's' : ''} ago`;
+        }
+        diff = Math.floor(diff / units[i].value);
+    }
+
+    return 'a long time ago';
+};
+
+const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -74,6 +99,13 @@ const Stories = ({ filter, timePeriod }: StoriesProps) => {
                         break;
                 }
 
+                if (sort === 'date') {
+                    filteredStories.sort((a: Story, b: Story) => b.time - a.time);
+                } else if (sort === 'popularity') {
+                    filteredStories.sort((a: Story, b: Story) => b.score - a.score);
+                }
+
+                console.log('Stories after time period filtering:', filteredStories);
                 setStories(filteredStories);
                 setLoading(false);
             })
@@ -82,7 +114,7 @@ const Stories = ({ filter, timePeriod }: StoriesProps) => {
                 setError('Failed to load stories');
                 setLoading(false);
             });
-    }, [filter]); // Depend on filter to refetch when it changes
+    }, [filter, timePeriod, sort]); // Depend on filter to refetch when it changes
 
     if (loading) {
         return <div>Loading stories...</div>;
@@ -111,7 +143,7 @@ const Stories = ({ filter, timePeriod }: StoriesProps) => {
                                 </span> |
                                 <span>
                                     <img src="photos/clock.png" style={{ width: '15px', verticalAlign: 'middle', marginRight: '5px' }} alt="Clock" />
-                                    {new Date(story.time * 1000).toLocaleString()}
+                                    {formatTime(story.time)}
                                 </span> |
                                 <a href={story.url} target="_blank" rel="noopener noreferrer">
                                     {story.url}

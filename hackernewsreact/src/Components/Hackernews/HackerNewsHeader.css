@@ -49,10 +49,19 @@
         color: gray;
     }
 
-.nav-link.active {
+.navbar-nav .nav-link.active {
     border-bottom: 2px solid orangered;
     color: gray;
 }
+.navbar-nav .nav-link.popularity.active {
+    border-bottom: 2px solid orangered;
+}
+
+.navbar-nav .nav-link.date.active {
+    border-bottom: 2px solid orangered;
+}
+
+
 
 .navbar-nav .nav-link.active,
 .navbar-nav .nav-link.show {
@@ -73,5 +82,7 @@
     color: gray;
     pointer-events: none;
 }
+
+
 
 

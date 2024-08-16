@@ -10,10 +10,12 @@ import Stories from './Stories';
 // Define the type for the filter state
 type FilterType = 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
 type TimePeriod = 'last-24h' | 'past-week' | 'past-month' | 'forever';
+type SortType = 'date' | 'popularity';
 function HackerNews() {
     const [nickname, setNickname] = useState<string>('');
     const [filter, setFilter] = useState<FilterType>('all'); // State for filter
     const [timePeriod, setTimePeriod] = useState<TimePeriod>('forever');
+    const [sort, setSort] = useState<SortType>('date');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -44,9 +46,13 @@ function HackerNews() {
         setTimePeriod(period);
     };
 
+    const handleSortChange = (sortType: SortType) => {
+        setSort(sortType);
+    };
+
     return (
         <>
-            <HackerNewsHeader />
+            <HackerNewsHeader onSortChange={handleSortChange} currentSort={sort}/>
             <div className="container-fluid body">
                 <div className="row">
                     <div className="col-lg-2 col-md-3 col-sm-12 mb-3 pt-3 div-list">
@@ -54,7 +60,7 @@ function HackerNews() {
                     </div>
                     <div className="col-lg-10 col-md-9 col-sm-12 main-div">
                         <Topbar onTimePeriodChange={handleTimePeriodChange}/>
-                        <Stories filter={filter} timePeriod={timePeriod} />
+                        <Stories filter={filter} timePeriod={timePeriod} sort={sort} />
                     </div>
                 </div>
             </div>

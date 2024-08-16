@@ -1,6 +1,12 @@
 import './HackerNewsHeader.css'; // Import the CSS file
 
-const HackerNewsHeader = () => {
+interface HackerNewsHeaderProps {
+    onSortChange: (sortType: 'date' | 'popularity') => void;
+    currentSort: 'date' | 'popularity';
+}
+
+
+const HackerNewsHeader = ({ onSortChange, currentSort }: HackerNewsHeaderProps) => {
     return (
         <nav className="navbar navbar-expand-lg">
             <div className="container-fluid d-flex align-items-center">
@@ -32,10 +38,10 @@ const HackerNewsHeader = () => {
                             <a className="nav-link disabled" aria-current="page" href="#">Sort by:</a>
                         </li>
                         <li className="nav-item">
-                            <a className="nav-link selected" href="#" id="sort-by-popularity">Popularity</a>
+                            <a className={`nav-link popularity ${currentSort === 'popularity' ? 'active' : ''}`} href="#" id="sort-by-popularity" onClick={() => onSortChange('popularity')}>Popularity</a>
                         </li>
                         <li className="nav-item">
-                            <a className="nav-link selected active" id="sort-by-date" href="#">Date</a>
+                            <a className={`nav-link popularity ${currentSort === 'date' ? 'active' : ''}`} id="sort-by-date" href="#" onClick={() => onSortChange('date')}>Date</a>
                         </li>
                     </ul>
                 </div>
