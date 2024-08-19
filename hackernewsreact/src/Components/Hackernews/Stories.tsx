@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Stories.css';
+import './Comments'
+import Comments from './Comments';
 
 // Define the type for the filter
 type FilterType = 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
@@ -260,17 +262,13 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                             <img className="star ms-2" src="photos/star.png" alt="Star" />
                         </div>
                     </div>
-                    {visibleComments.has(story.id) && (
-
-                        <div className="comment-input mt-2">
-                            <textarea
-                                placeholder="Add a comment..."
-                                value={newComment}
-                                onChange={handleCommentChange}
-                            />
-                            <button onClick={handleCommentSubmit} className="submit-btn">Add Comment</button>
-                        </div>
-                    )}
+                    <Comments
+                        storyId={story.id}
+                        visibleComments={visibleComments}
+                        newComment={newComment}
+                        onCommentChange={handleCommentChange}
+                        onCommentSubmit={handleCommentSubmit}
+                    />
                 </div>
 
             )) : <div>No stories found</div>}
