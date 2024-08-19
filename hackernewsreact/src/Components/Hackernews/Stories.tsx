@@ -68,6 +68,7 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
     const [visibleComments, setVisibleComments] = useState<Set<number>>(new Set());
     const [newComment, setNewComment] = useState<string>('');
     const [commentStoryId, setCommentStoryId] = useState<number | null>(null);
+    const [visiblePolls, setVisiblePolls] = useState<Set<number>>(new Set());
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -202,6 +203,18 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
         });
     };
 
+    const handlePollClick = (storyId: number) => { 
+        setVisiblePolls(prev => {
+            const newVisiblePolls = new Set(prev);
+            if (newVisiblePolls.has(storyId)) {
+                newVisiblePolls.delete(storyId);
+            } else {
+                newVisiblePolls.add(storyId);
+            }
+            return newVisiblePolls;
+        });
+    };
+
     if (loading) {
         return <div>Loading stories...</div>;
     }
@@ -242,17 +255,26 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                             </div>
                             
                         </div>
-                        {story.type === 3 && story.parts && (
-                            <div className="poll-options bg-white">
-                                {story.parts.map(part => (
-                                    <div key={part.id} className="poll-option d-flex">
-                                        <p>{part.text}</p>
-                                        <span>Score: {part.score}</span>
-                                    </div>
-                                ))}
+                   
+                        {visiblePolls.has(story.id) && story.parts && (
+                            <div className="poll-options bg-light p-3">
+                                <h6>Poll Options:</h6>
+                                <ul>
+                                    {story.parts.map(part => (
+                                        <li key={part.id}>
+                                            <strong>{part.text}</strong> - {part.score} points
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         )}
-
+                        <div className="ms-auto d-flex align-items-center">
+                            {story.type === 3 && (
+                                <button className="btn btn-outline-primary ms-2" onClick={() => handlePollClick(story.id)}>
+                                    {visiblePolls.has(story.id) ? 'Hide Polls' : 'Polls'}
+                                </button>
+                            )}
+                        </div>
                         <div className="comment-section ms-auto d-flex align-items-center">
                             <div style={{ display: 'inline' }} className="comment-btn" onClick={() => handleCommentClick(story.id)}>
                                 <img className="chat" src="photos/chat.png" alt="Chat" />
