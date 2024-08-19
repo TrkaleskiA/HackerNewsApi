@@ -36,5 +36,12 @@ namespace HackerNews.DataAccess.Repository
             _context.Set<Comment>().Update(comment);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Comment>> GetCommentsByParentIdAsync(long parentId)
+        {
+            return await _context.Comments
+                                 .Where(c => c.ParentId == parentId)
+                                 .ToListAsync();
+        }
     }
 }

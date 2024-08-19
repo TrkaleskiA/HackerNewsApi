@@ -10,5 +10,6 @@ namespace HackerNewsApi.Services.ServicesInterfaces
         Task<IEnumerable<Comment>> GetAllCommentsAsync();
         Task<Comment> AddCommentAsync(Comment comment);
         Task UpdateCommentAsync(Comment comment); // New method
+        Task<IEnumerable<Comment>> GetCommentsByParentIdAsync(long parentId);
     }
 }
