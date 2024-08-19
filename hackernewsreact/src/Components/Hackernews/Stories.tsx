@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Stories.css';
-import './Comments'
 import Comments from './Comments';
+import Options from './Options';
 
 // Define the type for the filter
 type FilterType = 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
 type TimePeriod = 'last-24h' | 'past-week' | 'past-month' | 'forever';
 type SortType = 'date' | 'popularity';
-
 
 interface Part {
     id: number;
@@ -19,6 +18,7 @@ interface Part {
     by: string;
     type: string;
 }
+
 interface Story {
     id: number;
     title: string;
@@ -27,7 +27,7 @@ interface Story {
     descendants: number;
     score: number;
     time: number;
-    type: number; // Update type to number
+    type: number;
     parts?: Part[];
 }
 
@@ -66,12 +66,13 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
     const [loading, setLoading] = useState(true);
     const [likedStories, setLikedStories] = useState<Set<number>>(new Set());
     const [visibleComments, setVisibleComments] = useState<Set<number>>(new Set());
-    const [visiblePolls, setVisiblePolls] = useState<Set<number>>(new Set());
-    const [selectedPollOption, setSelectedPollOption] = useState<Record<number, number | null>>({});
     const [error, setError] = useState('');
+    const [selectedPollOption, setSelectedPollOption] = useState<Record<number, number | null>>({});
+    const [visiblePolls, setVisiblePolls] = useState<Set<number>>(new Set());
+
 
     useEffect(() => {
-        axios.get('http://localhost:5234/api/story') // Adjust the API URL as needed
+        axios.get('http://localhost:5234/api/story')
             .then(response => {
                 let filteredStories = response.data;
 
@@ -100,8 +101,7 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                         break;
                 }
 
-                const currentTime = Date.now() / 1000; // Get current time in seconds
-                console.log(currentTime)
+                const currentTime = Date.now() / 1000;
                 switch (timePeriod) {
                     case 'last-24h':
                         filteredStories = filteredStories.filter((story: Story) => currentTime - story.time <= 86400);
@@ -123,37 +123,25 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                     filteredStories.sort((a: Story, b: Story) => b.score - a.score);
                 }
 
-                console.log('Stories after time period filtering:', filteredStories);
-                setStories(filteredStories);
-                setLoading(false);
-
-
                 const fetchPollParts = async () => {
                     const updatedStories = await Promise.all(filteredStories.map(async (story: Story) => {
                         if (story.type === 3) {
-                            // Fetch parts for this poll
                             const partsResponse = await axios.get(`http://localhost:5234/api/Part/byPollId/${story.id}`);
                             return { ...story, parts: partsResponse.data };
                         }
                         return story;
                     }));
                     setStories(updatedStories);
-                    setLoading(false);
                 };
 
                 fetchPollParts();
             })
-
-
-
-
-
             .catch(error => {
                 console.error('Error fetching stories:', error);
                 setError('Failed to load stories');
-                setLoading(false);
-            });
-    }, [filter, timePeriod, sort]); // Depend on filter to refetch when it changes
+            })
+            .finally(() => setLoading(false));
+    }, [filter, timePeriod, sort]);
 
     const handleHeartClick = (storyId: number) => {
         setLikedStories(prevLikedStories => {
@@ -194,9 +182,8 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
         }));
     };
 
-
-    const handlePollClick = (storyId: number) => { 
-        setVisiblePolls(prev => {
+    const handlePollClick = (storyId: number) => {
+        setVisiblePolls((prev: Set<number>) => {
             const newVisiblePolls = new Set(prev);
             if (newVisiblePolls.has(storyId)) {
                 newVisiblePolls.delete(storyId);
@@ -208,38 +195,10 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
     };
 
     const handlePollOptionChange = (pollId: number, optionId: number) => {
-        setStories(prevStories =>
-            prevStories.map(story => {
-                if (story.id === pollId) {
-                    const previouslySelectedOption = selectedPollOption[pollId];
-                    return {
-                        ...story,
-                        parts: story.parts?.map(part => {
-                            if (part.id === optionId) {
-                                // If the option was previously selected, decrease its score
-                                if (previouslySelectedOption === optionId) {
-                                    return { ...part, score: part.score - 1 };
-                                }
-                                // Otherwise, increase the score for the new selection
-                                return { ...part, score: part.score + 1 };
-                            }
-                            // Decrease the score for the previously selected option
-                            if (part.id === previouslySelectedOption) {
-                                return { ...part, score: part.score - 1 };
-                            }
-                            return part;
-                        })
-                    };
-                }
-                return story;
-            })
-        );
-
-        setSelectedPollOption(prev => {
-            const currentSelection = prev[pollId];
-            const newSelection = currentSelection === optionId ? null : optionId;
-            return { ...prev, [pollId]: newSelection };
-        });
+        setSelectedPollOption(prevSelected => ({
+            ...prevSelected,
+            [pollId]: optionId
+        }));
     };
 
     if (loading) {
@@ -283,30 +242,26 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                             
                         </div>
                    
-                        {visiblePolls.has(story.id) && story.parts && (
-                            <div className="poll-options bg-light p-3">
-                                <h6>Poll Options:</h6>
-                                {story.parts.map(part => (
-                                    <div key={part.id} className="poll-option">
-                                        <label>
-                                            <input
-                                                type="radio"
-                                                name={`poll-${story.id}`}
-                                                value={part.id}
-                                                checked={selectedPollOption[story.id] === part.id}
-                                                onChange={() => handlePollOptionChange(story.id, part.id)}
-                                            />
-                                            <strong>{part.text}</strong> - {part.score} points
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        
                         <div className="ms-auto d-flex align-items-center">
                             {story.type === 3 && (
-                                <button className="btn btn-outline-primary ms-2" onClick={() => handlePollClick(story.id)}>
-                                    {visiblePolls.has(story.id) ? 'Hide Polls' : 'Polls'}
-                                </button>
+                                <div className="ms-auto d-flex align-items-center">
+                                    <button
+                                        className="vote-button"
+                                        onClick={() => handlePollClick(story.id)}
+                                    >
+                                        Vote
+                                    </button>
+                                    {visiblePolls.has(story.id) && (
+                                        <Options
+                                            pollId={story.id}
+                                            options={story.parts || []}
+                                            selectedOption={selectedPollOption[story.id] || null}
+                                            onOptionSelect={(optionId) => handlePollOptionChange(story.id, optionId)}
+                                            onClose={() => handlePollClick(story.id)}
+                                        />
+                                    )}
+                                </div>
                             )}
                         </div>
                         <div className="comment-section ms-auto d-flex align-items-center">
