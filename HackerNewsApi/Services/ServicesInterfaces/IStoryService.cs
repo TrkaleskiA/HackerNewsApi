@@ -9,8 +9,9 @@ namespace HackerNewsApi.Services.ServicesInterfaces
         Task<Story> GetStoryByIdAsync(long id);
         Task<IEnumerable<Story>> GetAllStoriesAsync();
         Task AddStoryAsync(Story story);
-
-        // New method for adding a story with associated parts
         Task AddStoryWithPartsAsync(Story story, IEnumerable<Part> parts);
+
+        // New method for updating the story
+        Task UpdateStoryAsync(Story story);
     }
 }

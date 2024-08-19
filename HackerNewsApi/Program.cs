@@ -26,11 +26,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IStoryRepository, StoryRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPartRepository, PartRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 // Register services
 builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPartService, PartService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 // Configure Authentication (Cookie-based)
 builder.Services.AddAuthentication(options =>
