@@ -27,7 +27,7 @@ const Comments: React.FC<CommentsProps> = ({
                     <button onClick={onCommentSubmit} className="submit-btn">Add Comment</button>
                 </div> 
                 <div className="comments-display col-mb-8">
-                    <h1>Comments</h1>
+                    <h3>Comments</h3>
                 </div>
             </div>
         )

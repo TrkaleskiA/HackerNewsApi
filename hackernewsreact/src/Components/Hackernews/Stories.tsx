@@ -69,6 +69,7 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
     const [newComment, setNewComment] = useState<string>('');
     const [commentStoryId, setCommentStoryId] = useState<number | null>(null);
     const [visiblePolls, setVisiblePolls] = useState<Set<number>>(new Set());
+    const [selectedPollOption, setSelectedPollOption] = useState<Record<number, number | null>>({});
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -215,6 +216,41 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
         });
     };
 
+    const handlePollOptionChange = (pollId: number, optionId: number) => {
+        setStories(prevStories =>
+            prevStories.map(story => {
+                if (story.id === pollId) {
+                    const previouslySelectedOption = selectedPollOption[pollId];
+                    return {
+                        ...story,
+                        parts: story.parts?.map(part => {
+                            if (part.id === optionId) {
+                                // If the option was previously selected, decrease its score
+                                if (previouslySelectedOption === optionId) {
+                                    return { ...part, score: part.score - 1 };
+                                }
+                                // Otherwise, increase the score for the new selection
+                                return { ...part, score: part.score + 1 };
+                            }
+                            // Decrease the score for the previously selected option
+                            if (part.id === previouslySelectedOption) {
+                                return { ...part, score: part.score - 1 };
+                            }
+                            return part;
+                        })
+                    };
+                }
+                return story;
+            })
+        );
+
+        setSelectedPollOption(prev => {
+            const currentSelection = prev[pollId];
+            const newSelection = currentSelection === optionId ? null : optionId;
+            return { ...prev, [pollId]: newSelection };
+        });
+    };
+
     if (loading) {
         return <div>Loading stories...</div>;
     }
@@ -259,13 +295,20 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                         {visiblePolls.has(story.id) && story.parts && (
                             <div className="poll-options bg-light p-3">
                                 <h6>Poll Options:</h6>
-                                <ul>
-                                    {story.parts.map(part => (
-                                        <li key={part.id}>
+                                {story.parts.map(part => (
+                                    <div key={part.id} className="poll-option">
+                                        <label>
+                                            <input
+                                                type="radio"
+                                                name={`poll-${story.id}`}
+                                                value={part.id}
+                                                checked={selectedPollOption[story.id] === part.id}
+                                                onChange={() => handlePollOptionChange(story.id, part.id)}
+                                            />
                                             <strong>{part.text}</strong> - {part.score} points
-                                        </li>
-                                    ))}
-                                </ul>
+                                        </label>
+                                    </div>
+                                ))}
                             </div>
                         )}
                         <div className="ms-auto d-flex align-items-center">

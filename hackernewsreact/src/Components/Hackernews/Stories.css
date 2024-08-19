@@ -90,12 +90,24 @@
     }
 }
 
+
+
 .poll-options {
-    margin-left: 110px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
 }
 
 .poll-option {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px; /* Adds space between each option */
 }
 
+    .poll-option label {
+        display: block; /* Ensures each option appears on a new line */
+        font-size: 14px;
+    }
+
+    .poll-option input[type="radio"] {
+        margin-right: 10px; /* Adds space between the radio button and the label text */
+    }
