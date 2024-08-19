@@ -26,9 +26,15 @@ namespace HackerNewsApi.Services
             return _repository.GetAllCommentsAsync();
         }
 
-        public Task AddCommentAsync(Comment comment)
+        public async Task<Comment> AddCommentAsync(Comment comment)
         {
-            return _repository.AddCommentAsync(comment);
+            await _repository.AddCommentAsync(comment);
+            return comment;
+        }
+
+        public Task UpdateCommentAsync(Comment comment)
+        {
+            return _repository.UpdateCommentAsync(comment);
         }
     }
 }

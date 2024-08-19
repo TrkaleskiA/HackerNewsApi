@@ -1,5 +1,4 @@
 ﻿using HackerNews.DataAccess.Entities;
-using HackerNewsApi.Service;
 using HackerNewsApi.Services.ServicesInterfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -43,6 +42,25 @@ namespace HackerNewsApi.Controllers
         {
             await _storyService.AddStoryAsync(story);
             return CreatedAtAction(nameof(GetStoryById), new { id = story.Id }, story);
+        }
+
+        // New method to handle updates
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateStory(long id, [FromBody] Story updatedStory)
+        {
+            if (id != updatedStory.Id)
+            {
+                return BadRequest();
+            }
+
+            var existingStory = await _storyService.GetStoryByIdAsync(id);
+            if (existingStory == null)
+            {
+                return NotFound();
+            }
+
+            await _storyService.UpdateStoryAsync(updatedStory);
+            return NoContent(); // Success with no content
         }
     }
 }

@@ -30,5 +30,11 @@ namespace HackerNews.DataAccess.Repository
             await _context.Set<Comment>().AddAsync(comment);
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateCommentAsync(Comment comment)
+        {
+            _context.Set<Comment>().Update(comment);
+            await _context.SaveChangesAsync();
+        }
     }
 }

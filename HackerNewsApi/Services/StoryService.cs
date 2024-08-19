@@ -2,9 +2,8 @@
 using HackerNews.DataAccess.Repository.RepositoryInterfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HackerNewsApi.Services;
-using HackerNews.DataAccess.Entities.Enums;
 using HackerNewsApi.Services.ServicesInterfaces;
+using HackerNews.DataAccess.Entities.Enums;
 
 namespace HackerNewsApi.Services
 {
@@ -38,22 +37,23 @@ namespace HackerNewsApi.Services
         {
             if (story.Type == StoryType.poll)
             {
-                // Add the story first
                 await _storyRepository.AddStoryAsync(story);
-
-                // Set parts for the story
                 foreach (var part in parts)
                 {
-                    part.PollId = story.Id; // Set the poll ID
+                    part.PollId = story.Id;
                 }
-
-                // Add the parts
                 await _partService.AddPartsAsync(parts);
             }
             else
             {
                 await _storyRepository.AddStoryAsync(story);
             }
+        }
+
+        // Implementation of the update method
+        public async Task UpdateStoryAsync(Story story)
+        {
+            await _storyRepository.UpdateStoryAsync(story);
         }
     }
 }

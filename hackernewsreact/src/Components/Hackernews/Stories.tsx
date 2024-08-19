@@ -66,8 +66,6 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
     const [loading, setLoading] = useState(true);
     const [likedStories, setLikedStories] = useState<Set<number>>(new Set());
     const [visibleComments, setVisibleComments] = useState<Set<number>>(new Set());
-    const [newComment, setNewComment] = useState<string>('');
-    const [commentStoryId, setCommentStoryId] = useState<number | null>(null);
     const [visiblePolls, setVisiblePolls] = useState<Set<number>>(new Set());
     const [error, setError] = useState('');
 
@@ -184,24 +182,17 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
             }
             return newVisibleComments;
         });
-        setCommentStoryId(storyId);
     };
 
-    const handleCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setNewComment(event.target.value);
+    const handleCommentAdded = () => {
+        setStories(prevStories => prevStories.map(story => {
+            if (visibleComments.has(story.id)) {
+                return { ...story, descendants: story.descendants + 1 };
+            }
+            return story;
+        }));
     };
 
-    const handleCommentSubmit = () => {
-        if (newComment.trim() === '') return;
-        // Implement comment posting logic here
-        console.log('Comment for story ID:', commentStoryId, 'Comment:', newComment);
-        setNewComment('');
-        setVisibleComments(prev => {
-            const newVisibleComments = new Set(prev);
-            newVisibleComments.delete(commentStoryId!);
-            return newVisibleComments;
-        });
-    };
 
     const handlePollClick = (storyId: number) => { 
         setVisiblePolls(prev => {
@@ -287,9 +278,7 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                     <Comments
                         storyId={story.id}
                         visibleComments={visibleComments}
-                        newComment={newComment}
-                        onCommentChange={handleCommentChange}
-                        onCommentSubmit={handleCommentSubmit}
+                        onCommentAdded={handleCommentAdded}
                     />
                 </div>
 

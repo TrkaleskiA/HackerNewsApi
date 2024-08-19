@@ -9,5 +9,6 @@ namespace HackerNews.DataAccess.Repository.RepositoryInterfaces
         Task<Story> GetStoryByIdAsync(long id);
         Task<IEnumerable<Story>> GetAllStoriesAsync();
         Task AddStoryAsync(Story story);
+        Task UpdateStoryAsync(Story story);
     }
 }
