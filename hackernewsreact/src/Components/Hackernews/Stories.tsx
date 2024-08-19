@@ -240,6 +240,17 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                             </div>
                             
                         </div>
+                        {story.type === 3 && story.parts && (
+                            <div className="poll-options bg-white">
+                                {story.parts.map(part => (
+                                    <div key={part.id} className="poll-option d-flex">
+                                        <p>{part.text}</p>
+                                        <span>Score: {part.score}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
                         <div className="comment-section ms-auto d-flex align-items-center">
                             <div style={{ display: 'inline' }} className="comment-btn" onClick={() => handleCommentClick(story.id)}>
                                 <img className="chat" src="photos/chat.png" alt="Chat" />
@@ -250,6 +261,7 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                         </div>
                     </div>
                     {visibleComments.has(story.id) && (
+
                         <div className="comment-input mt-2">
                             <textarea
                                 placeholder="Add a comment..."
@@ -260,6 +272,7 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                         </div>
                     )}
                 </div>
+
             )) : <div>No stories found</div>}
         </div>
     );
