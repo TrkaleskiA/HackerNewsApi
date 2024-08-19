@@ -99,5 +99,13 @@ namespace HackerNewsApi.Controllers
             }
         }
 
+        [HttpGet("byParentId/{parentId}")]
+        public async Task<ActionResult<IEnumerable<Comment>>> GetCommentsByParentId(long parentId)
+        {
+            var comments = await _commentService.GetCommentsByParentIdAsync(parentId);
+            return Ok(comments);
+        }
+
+
     }
 }
