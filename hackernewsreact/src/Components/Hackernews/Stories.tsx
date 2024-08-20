@@ -195,36 +195,40 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
     };
 
     const handlePollOptionChange = (pollId: number, optionId: number) => {
-        setSelectedPollOption(prevSelected => {
-            // Get the previously selected option ID for this poll
-            const previousOptionId = prevSelected[pollId];
+    setSelectedPollOption(prevSelected => {
+        // Get the previously selected option ID for this poll
+        const previousOptionId = prevSelected[pollId];
+        
+        // If the user has already voted, prevent further changes
+        if (previousOptionId !== undefined) {
+            return prevSelected; // Return current state without changes
+        }
 
-            // Update the selected option ID in the state
-            const newSelected = { ...prevSelected, [pollId]: optionId };
+        // Update the selected option ID in the state
+        const newSelected = { ...prevSelected, [pollId]: optionId };
 
-            // Update the stories' parts to reflect the score changes
-            setStories(prevStories => prevStories.map(story => {
-                if (story.id === pollId && story.parts) {
-                    return {
-                        ...story,
-                        parts: story.parts.map(part => {
-                            if (part.id === optionId) {
-                                // Increment the score for the newly selected option
-                                return { ...part, score: part.score + 1 };
-                            } else if (part.id === previousOptionId) {
-                                // Decrement the score for the previously selected option
-                                return { ...part, score: part.score - 1 };
-                            }
-                            return part;
-                        })
-                    };
-                }
-                return story;
-            }));
+        // Update the stories' parts to reflect the score changes and disable other options
+        setStories(prevStories => prevStories.map(story => {
+            if (story.id === pollId && story.parts) {
+                return {
+                    ...story,
+                    parts: story.parts.map(part => {
+                        if (part.id === optionId) {
+                            // Increment the score for the selected option
+                            return { ...part, score: part.score + 1, disabled: false };
+                        } else {
+                            // Disable other options
+                            return { ...part, disabled: true };
+                        }
+                    })
+                };
+            }
+            return story;
+        }));
 
-            return newSelected;
-        });
-    };
+        return newSelected;
+    });
+};
 
     if (loading) {
         return <div>Loading stories...</div>;
