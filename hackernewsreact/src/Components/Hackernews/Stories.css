@@ -73,11 +73,6 @@
     cursor: pointer;
 }
 
-.comments-container {
-    margin-left: 250px;
-    border-top: #f8f6f6 3px solid;
-}
-
 .heart {
     width: 15px;
     vertical-align: middle;

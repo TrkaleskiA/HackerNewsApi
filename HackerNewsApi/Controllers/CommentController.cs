@@ -12,7 +12,7 @@ namespace HackerNewsApi.Controllers
     public class CommentController : ControllerBase
     {
         private readonly ICommentService _commentService;
-        private readonly IStoryService _storyService; // Service for stories
+        private readonly IStoryService _storyService;
 
         public CommentController(ICommentService commentService, IStoryService storyService)
         {
@@ -43,21 +43,37 @@ namespace HackerNewsApi.Controllers
         {
             try
             {
-                // Add the new comment
-                var createdComment = await _commentService.AddCommentAsync(comment);
+                Comment createdComment;
 
-                // Check if there is a parent comment or story
-                if (comment.ParentId != null)
+                if (comment.CommentId.HasValue) // Check if it's a reply
                 {
-                    // Check if the parent is a story
-                    var parentStory = await _storyService.GetStoryByIdAsync(comment.ParentId.Value);
+                    var parentComment = await _commentService.GetCommentByIdAsync(comment.CommentId.Value);
+                    if (parentComment == null)
+                    {
+                        return NotFound($"Parent comment with ID {comment.CommentId} not found.");
+                    }
 
+                    // Initialize Kids if null
+                    parentComment.Kids ??= new List<Comment>();
+
+                    // Add the new comment to the parent's Kids list
+                    comment.StoryId = parentComment.StoryId; // Ensure the reply has the correct StoryId
+                    createdComment = await _commentService.AddCommentAsync(comment);
+                    parentComment.Kids.Add(createdComment);
+
+                    // Save updates to the parent comment
+                    await _commentService.UpdateCommentAsync(parentComment);
+                }
+                else if (comment.StoryId.HasValue) // If it's a story comment
+                {
+                    var parentStory = await _storyService.GetStoryByIdAsync(comment.StoryId.Value);
                     if (parentStory != null)
                     {
                         // Initialize Kids if null
                         parentStory.Kids ??= new List<Comment>();
 
                         // Add the new comment to the story's Kids list
+                        createdComment = await _commentService.AddCommentAsync(comment);
                         parentStory.Kids.Add(createdComment);
 
                         // Increment the descendants field
@@ -68,23 +84,12 @@ namespace HackerNewsApi.Controllers
                     }
                     else
                     {
-                        // If not a story, check if the parent is a comment
-                        var parentComment = await _commentService.GetCommentByIdAsync(comment.ParentId.Value);
-
-                        if (parentComment == null)
-                        {
-                            return NotFound($"Parent with ID {comment.ParentId} not found.");
-                        }
-
-                        // Initialize Kids if null
-                        parentComment.Kids ??= new List<Comment>();
-
-                        // Add the new comment to the parent's Kids list
-                        parentComment.Kids.Add(createdComment);
-
-                        // Save updates to the comment
-                        await _commentService.UpdateCommentAsync(parentComment);
+                        return NotFound($"Story with ID {comment.StoryId} not found.");
                     }
+                }
+                else
+                {
+                    return BadRequest("Comment must be associated with a story or parent comment.");
                 }
 
                 return CreatedAtAction(nameof(GetComment), new { id = createdComment.Id }, createdComment);
@@ -99,13 +104,17 @@ namespace HackerNewsApi.Controllers
             }
         }
 
+
         [HttpGet("byParentId/{parentId}")]
         public async Task<ActionResult<IEnumerable<Comment>>> GetCommentsByParentId(long parentId)
         {
             var comments = await _commentService.GetCommentsByParentIdAsync(parentId);
+            if (comments == null || !comments.Any())
+            {
+                return NotFound($"No comments found for parent ID {parentId}.");
+            }
             return Ok(comments);
         }
-
 
     }
 }

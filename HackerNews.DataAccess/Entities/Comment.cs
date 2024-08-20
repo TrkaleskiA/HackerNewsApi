@@ -15,9 +15,12 @@ namespace HackerNews.DataAccess.Entities
         public string Text { get; set; } 
 
         [Required]
-        public string By { get; set; } 
+        public string By { get; set; }
 
-        public long? ParentId { get; set; } 
+        public long? StoryId { get; set; }  // Renamed from ParentId
+
+        public long? CommentId { get; set; }  // This is the actual parent comment if it’s a reply.
+
 
         public long Time { get; set; } 
 
@@ -25,7 +28,7 @@ namespace HackerNews.DataAccess.Entities
 
         public List<Comment>? Kids { get; set; } 
 
-        [ForeignKey("ParentId")]
+        [ForeignKey("StoryId")]
         [JsonIgnore]
         public Story? Story { get; set; } 
     }

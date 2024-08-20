@@ -3,10 +3,12 @@
     justify-content: space-between;
     width: 100%;
     gap: 20px;
+    border-top: transparent 3px solid;
 }
 
+/* For the input text area, set its flex-basis to 33% */
 .comment-input {
-    flex: 1;
+    flex-basis: 26%;
     display: flex;
     flex-direction: column;
 }
@@ -16,15 +18,14 @@
         min-height: 100px;
         padding: 10px;
         border: 1px solid #ccc;
-        border-radius: 4px;
         resize: vertical;
         font-size: 1em;
         margin-bottom: 10px;
         box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+        border-top: transparent;
     }
 
         .comment-input textarea:focus {
-            border-color: orangered;
             outline: none;
             box-shadow: 0px 0px 5px rgba(255, 69, 0, 0.5);
         }
@@ -45,16 +46,17 @@
         background-color: darkorange;
     }
 
+/* For the comments display, set its flex-basis to 66% */
 .comments-display {
-    flex: 2;
+    flex-basis: 74%;
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 4px;
     box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    border-top: transparent;
 }
 
 .comment-item {
@@ -69,4 +71,35 @@
         padding-bottom: 0;
     }
 
+.comment-header {
+    font-weight: bold;
+}
 
+.comment-text {
+    word-break: break-word; 
+    overflow-wrap: break-word; 
+}
+
+
+.comment-actions .replies-btn:hover {
+    color: #525252;
+}
+
+.comment-actions .replies-btn {
+    cursor: pointer;
+    color: gray;
+    text-decoration: underline;
+    font-size: 80%;
+}
+
+.reply-btn {
+    cursor: pointer;
+    color: gray;
+    text-decoration: underline;
+    font-size: 80%;
+    margin-right: 10px; /* Optional: Add some space if needed */
+}
+
+    .reply-btn:hover {
+        color: #525252; /* Optional: Add hover color if needed */
+    }
