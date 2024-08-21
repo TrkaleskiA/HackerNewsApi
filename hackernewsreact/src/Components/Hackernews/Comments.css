@@ -97,8 +97,7 @@
     color: gray;
     text-decoration: underline;
     font-size: 80%;
-    margin-right: 10px; /* Optional: Add some space if needed */
-}
+    margin-left: 10px;
 
     .reply-btn:hover {
         color: #525252; /* Optional: Add hover color if needed */

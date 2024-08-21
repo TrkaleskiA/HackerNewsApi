@@ -10,6 +10,6 @@ namespace HackerNews.DataAccess.Repository.RepositoryInterfaces
         Task<IEnumerable<Comment>> GetAllCommentsAsync();
         Task AddCommentAsync(Comment comment);
         Task UpdateCommentAsync(Comment comment); // New method to update a comment
-        Task<IEnumerable<Comment>> GetCommentsByParentIdAsync(long parentId);
+        Task<IEnumerable<Comment>> GetCommentsByParentIdAsync(long parentId, bool fetchReplies);
     }
 }
