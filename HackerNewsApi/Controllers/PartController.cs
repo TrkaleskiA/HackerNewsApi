@@ -141,5 +141,22 @@ namespace HackerNewsApi.Controllers
             await _partService.DeletePartAsync(id);
             return NoContent();
         }
+
+        [HttpPost("vote/{optionId}")]
+        public async Task<IActionResult> VoteForOption(long optionId)
+        {
+            var part = await _partService.GetPartByIdAsync(optionId);
+            if (part == null)
+            {
+                return NotFound("Poll option not found.");
+            }
+
+            // Increment the score of the selected option
+            part.Score += 1;
+
+            await _partService.UpdatePartAsync(part);
+
+            return Ok(part);
+        }
     }
 }

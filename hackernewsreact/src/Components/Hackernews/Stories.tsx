@@ -194,41 +194,47 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
         });
     };
 
-    const handlePollOptionChange = (pollId: number, optionId: number) => {
-    setSelectedPollOption(prevSelected => {
-        // Get the previously selected option ID for this poll
-        const previousOptionId = prevSelected[pollId];
-        
-        // If the user has already voted, prevent further changes
-        if (previousOptionId !== undefined) {
-            return prevSelected; // Return current state without changes
-        }
+    const handlePollOptionChange = async (pollId: number, optionId: number) => {
+        setSelectedPollOption(prevSelected => {
+            const previousOptionId = prevSelected[pollId];
 
-        // Update the selected option ID in the state
-        const newSelected = { ...prevSelected, [pollId]: optionId };
-
-        // Update the stories' parts to reflect the score changes and disable other options
-        setStories(prevStories => prevStories.map(story => {
-            if (story.id === pollId && story.parts) {
-                return {
-                    ...story,
-                    parts: story.parts.map(part => {
-                        if (part.id === optionId) {
-                            // Increment the score for the selected option
-                            return { ...part, score: part.score + 1, disabled: false };
-                        } else {
-                            // Disable other options
-                            return { ...part, disabled: true };
-                        }
-                    })
-                };
+            if (previousOptionId !== undefined) {
+                return prevSelected; // Prevent multiple votes
             }
-            return story;
-        }));
 
-        return newSelected;
-    });
-};
+            const newSelected = { ...prevSelected, [pollId]: optionId };
+
+            // Optimistically update the UI
+            setStories(prevStories => prevStories.map(story => {
+                if (story.id === pollId && story.parts) {
+                    return {
+                        ...story,
+                        parts: story.parts.map(part => {
+                            if (part.id === optionId) {
+                                return { ...part, score: part.score + 1, disabled: false };
+                            } else {
+                                return { ...part, disabled: true };
+                            }
+                        })
+                    };
+                }
+                return story;
+            }));
+
+            // Call the API to update the score in the database
+            axios.post(`http://localhost:5234/api/Part/vote/${optionId}`)
+                .then(response => {
+                    console.log("Vote recorded successfully", response.data);
+                })
+                .catch(error => {
+                    console.error("Error recording vote:", error);
+                });
+
+            return newSelected;
+        });
+    };
+
+
 
     if (loading) {
         return <div>Loading stories...</div>;
