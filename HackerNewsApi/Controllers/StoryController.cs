@@ -1,4 +1,5 @@
 ﻿using HackerNews.DataAccess.Entities;
+using HackerNewsApi.Services;
 using HackerNewsApi.Services.ServicesInterfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -61,6 +62,23 @@ namespace HackerNewsApi.Controllers
 
             await _storyService.UpdateStoryAsync(updatedStory);
             return NoContent(); // Success with no content
+        }
+
+        [HttpPost("like/{storyId}")]
+        public async Task<IActionResult> LikeStory(long storyId)
+        {
+            var story = await _storyService.GetStoryByIdAsync(storyId);
+            if (story == null)
+            {
+                return NotFound("Story not found.");
+            }
+
+            // Increment the score of the selected option
+            story.Score += 1;
+
+            await _storyService.UpdateStoryAsync(story);
+
+            return Ok(story);
         }
     }
 }

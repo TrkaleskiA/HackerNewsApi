@@ -36,6 +36,7 @@ interface StoriesProps {
     filter: FilterType;
     timePeriod: TimePeriod;
     sort: SortType;
+    searchQuery: string;
 }
 
 const formatTime = (timestamp: number) => {
@@ -61,7 +62,7 @@ const formatTime = (timestamp: number) => {
     return 'a long time ago';
 };
 
-const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
+const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
     const [likedStories, setLikedStories] = useState<Set<number>>(new Set());
@@ -123,6 +124,12 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                     filteredStories.sort((a: Story, b: Story) => b.score - a.score);
                 }
 
+                filteredStories = filteredStories.filter((story: Story) =>
+                    story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    story.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    story.by.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+
                 const fetchPollParts = async () => {
                     const updatedStories = await Promise.all(filteredStories.map(async (story: Story) => {
                         if (story.type === 3) {
@@ -141,7 +148,7 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                 setError('Failed to load stories');
             })
             .finally(() => setLoading(false));
-    }, [filter, timePeriod, sort]);
+    }, [filter, timePeriod, sort, searchQuery]);
 
     const handleHeartClick = (storyId: number) => {
         setLikedStories(prevLikedStories => {
@@ -157,6 +164,15 @@ const Stories = ({ filter, timePeriod, sort }: StoriesProps) => {
                     story.id === storyId ? { ...story, score: story.score + 1 } : story
                 ));
             }
+
+            axios.post(`http://localhost:5234/api/Story/like/${storyId}`)
+                .then(response => {
+                    console.log("Like recorded successfully", response.data);
+                })
+                .catch(error => {
+                    console.error("Error recording like:", error);
+                });
+
             return newLikedStories;
         });
     };

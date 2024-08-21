@@ -1,12 +1,24 @@
 import './HackerNewsHeader.css'; // Import the CSS file
+import { useState } from 'react';
 
 interface HackerNewsHeaderProps {
     onSortChange: (sortType: 'date' | 'popularity') => void;
     currentSort: 'date' | 'popularity';
+    onSearchChange: (searchQuery: string) => void;
 }
 
 
-const HackerNewsHeader = ({ onSortChange, currentSort }: HackerNewsHeaderProps) => {
+const HackerNewsHeader = ({ onSortChange, currentSort, onSearchChange }: HackerNewsHeaderProps) => {
+
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const query = event.target.value;
+        setSearchQuery(query);
+        onSearchChange(query);
+    };
+
+
     return (
         <nav className="navbar navbar-expand-lg">
             <div className="container-fluid d-flex align-items-center">
@@ -22,8 +34,13 @@ const HackerNewsHeader = ({ onSortChange, currentSort }: HackerNewsHeaderProps) 
                         <option value="ask-hn">Ask-HN</option>
                     </select>
                     <div className="vertical-line"></div>
-                    <input type="search" id="searchInput" placeholder="Search stories by title, url or author" />
-                    <button type="submit">
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Search stories by title, url or author"
+                        value={searchQuery}
+                        onChange={handleSearchInputChange}
+                    />                    <button type="submit">
                         <i className="fas fa-search"></i>
                     </button>
                 </div>

@@ -21,7 +21,7 @@ namespace HackerNews.DataAccess.Entities
         [StringLength(100)] 
         public string? Nickname { get; set; }
 
-        public bool IsAdmin { get; set; } 
+        public bool IsAdmin { get; set; }
 
     }
 }

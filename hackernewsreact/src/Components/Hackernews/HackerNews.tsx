@@ -16,6 +16,7 @@ function HackerNews() {
     const [filter, setFilter] = useState<FilterType>('all'); // State for filter
     const [timePeriod, setTimePeriod] = useState<TimePeriod>('forever');
     const [sort, setSort] = useState<SortType>('date');
+    const [searchQuery, setSearchQuery] = useState<string>('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -50,9 +51,13 @@ function HackerNews() {
         setSort(sortType);
     };
 
+    const handleSearchChange = (query: string) => {
+        setSearchQuery(query);
+    };
+
     return (
         <>
-            <HackerNewsHeader onSortChange={handleSortChange} currentSort={sort}/>
+            <HackerNewsHeader onSortChange={handleSortChange} currentSort={sort} onSearchChange={handleSearchChange} />
             <div className="container-fluid body">
                 <div className="row">
                     <div className="col-lg-2 col-md-3 col-sm-12 mb-3 pt-3 div-list">
@@ -60,7 +65,7 @@ function HackerNews() {
                     </div>
                     <div className="col-lg-10 col-md-9 col-sm-12 main-div">
                         <Topbar onTimePeriodChange={handleTimePeriodChange}/>
-                        <Stories filter={filter} timePeriod={timePeriod} sort={sort} />
+                        <Stories filter={filter} timePeriod={timePeriod} sort={sort} searchQuery={searchQuery} />
                     </div>
                 </div>
             </div>
