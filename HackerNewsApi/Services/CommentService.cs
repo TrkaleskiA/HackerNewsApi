@@ -37,9 +37,9 @@ namespace HackerNewsApi.Services
             return _repository.UpdateCommentAsync(comment);
         }
 
-        public async Task<IEnumerable<Comment>> GetCommentsByParentIdAsync(long parentId)
+        public async Task<IEnumerable<Comment>> GetCommentsByParentIdAsync(long parentId, bool fetchReplies)
         {
-            return await _repository.GetCommentsByParentIdAsync(parentId);
+            return await _repository.GetCommentsByParentIdAsync(parentId, fetchReplies);
         }
     }
 }

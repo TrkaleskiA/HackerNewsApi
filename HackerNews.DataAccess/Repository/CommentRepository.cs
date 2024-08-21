@@ -40,25 +40,28 @@ namespace HackerNews.DataAccess.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Comment>> GetCommentsByParentIdAsync(long parentId)
+        public async Task<IEnumerable<Comment>> GetCommentsByParentIdAsync(long parentId, bool fetchReplies)
         {
-            // Check if the parentId is likely a StoryId or a CommentId
-            // If fetching replies, parentId is a CommentId
-            // If fetching main comments, parentId is a StoryId and CommentId is null
-
-            // Fetch comments that are replies to a comment
-            var replies = await _context.Comments
-                                        .Where(c => c.CommentId == parentId)
-                                        .ToListAsync();
-
-            // Fetch main comments associated with a story
-            var mainComments = await _context.Comments
-                                              .Where(c => c.StoryId == parentId && c.CommentId == null)
-                                              .ToListAsync();
-
-            // Combine both lists
-            return mainComments.Concat(replies);
+            if (fetchReplies)
+            {
+                // Fetch replies to a specific parent comment
+                return await _context.Comments
+                    .Where(c => c.CommentId == parentId) // Replies only
+                    .Include(c => c.Kids) // Include kids (replies) of the comment
+                    .ThenInclude(kid => kid.Kids) // Include nested replies as well
+                    .ToListAsync();
+            }
+            else
+            {
+                // Fetch main comments associated with a story
+                return await _context.Comments
+                    .Where(c => c.StoryId == parentId && c.CommentId == null) // Main comments only
+                    .Include(c => c.Kids) // Include kids (replies) of the comment
+                    .ThenInclude(kid => kid.Kids) // Include nested replies as well
+                    .ToListAsync();
+            }
         }
+
 
 
 

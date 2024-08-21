@@ -56,13 +56,21 @@ namespace HackerNewsApi.Controllers
                     // Initialize Kids if null
                     parentComment.Kids ??= new List<Comment>();
 
-                    // Add the new comment to the parent's Kids list
+                    // Add the new reply to the parent's Kids list
                     comment.StoryId = parentComment.StoryId; // Ensure the reply has the correct StoryId
                     createdComment = await _commentService.AddCommentAsync(comment);
                     parentComment.Kids.Add(createdComment);
 
                     // Save updates to the parent comment
                     await _commentService.UpdateCommentAsync(parentComment);
+
+                    // Increment the descendants field of the story
+                    var parentStory = await _storyService.GetStoryByIdAsync(parentComment.StoryId.Value);
+                    if (parentStory != null)
+                    {
+                        parentStory.Descendants = (parentStory.Descendants ?? 0) + 1;
+                        await _storyService.UpdateStoryAsync(parentStory);
+                    }
                 }
                 else if (comment.StoryId.HasValue) // If it's a story comment
                 {
@@ -105,10 +113,11 @@ namespace HackerNewsApi.Controllers
         }
 
 
+
         [HttpGet("byParentId/{parentId}")]
-        public async Task<ActionResult<IEnumerable<Comment>>> GetCommentsByParentId(long parentId)
+        public async Task<ActionResult<IEnumerable<Comment>>> GetCommentsByParentId(long parentId, [FromQuery] bool fetchReplies = false)
         {
-            var comments = await _commentService.GetCommentsByParentIdAsync(parentId);
+            var comments = await _commentService.GetCommentsByParentIdAsync(parentId,fetchReplies);
             if (comments == null || !comments.Any())
             {
                 return NotFound($"No comments found for parent ID {parentId}.");

@@ -17,19 +17,18 @@ interface Comment {
 interface CommentsProps {
     storyId: number;
     visibleComments: Set<number>;
-    onCommentAdded: () => void; // Callback to refresh the comments or update descendants in the story
+    onCommentAdded: () => void;
 }
 
 const Comments: React.FC<CommentsProps> = ({
     storyId,
     visibleComments,
-    onCommentAdded
 }) => {
     const [newComment, setNewComment] = useState<string>('');
     const [nickname, setNickname] = useState('');
     const [comments, setComments] = useState<Comment[]>([]);
-    const [replyToCommentId, setReplyToCommentId] = useState<number | null>(null); // Track which comment is being replied to
-    const [replyText, setReplyText] = useState<string>(''); // Text for the reply
+    const [replyToCommentId, setReplyToCommentId] = useState<number | null>(null);
+    const [replyText, setReplyText] = useState<string>('');
     const [expandedComments, setExpandedComments] = useState<Set<number>>(new Set());
     const navigate = useNavigate();
 
@@ -39,14 +38,13 @@ const Comments: React.FC<CommentsProps> = ({
             const user = JSON.parse(userCookie);
             setNickname(user.nickname);
         } else {
-            navigate('/login'); // Redirect to login if not logged in
+            navigate('/login');
         }
     }, [navigate]);
 
     const fetchComments = async () => {
         try {
-            const response = await axios.get(`http://localhost:5234/api/Comment/byParentId/${storyId}`);
-            console.log('Fetched comments:', response.data);
+            const response = await axios.get(`http://localhost:5234/api/Comment/byParentId/${storyId}?fetchReplies=false`);
             setComments(response.data);
         } catch (error) {
             console.error('Error fetching comments:', error);
@@ -67,17 +65,14 @@ const Comments: React.FC<CommentsProps> = ({
         if (newComment.trim() === '') return;
 
         try {
-            await axios.post('http://localhost:5234/api/Comment', {
+            const response = await axios.post('http://localhost:5234/api/Comment', {
                 text: newComment,
                 by: nickname,
-                storyId: storyId, // Ensure StoryId is set
+                storyId: storyId,
                 time: Math.floor(Date.now() / 1000)
             });
 
-            // Call the callback to update the UI (descendants, kids)
-            onCommentAdded();
-
-            // Clear the textarea after submission
+            setComments(prevComments => [...prevComments, response.data]);
             setNewComment('');
         } catch (error) {
             console.error('Error submitting comment:', error);
@@ -86,7 +81,7 @@ const Comments: React.FC<CommentsProps> = ({
 
     const handleReplyClick = (parentId: number) => {
         setReplyToCommentId(parentId);
-        setReplyText(''); // Clear previous reply text
+        setReplyText('');
     };
 
     const handleReplyChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -97,18 +92,20 @@ const Comments: React.FC<CommentsProps> = ({
         if (replyText.trim() === '') return;
 
         try {
-            await axios.post('http://localhost:5234/api/Comment', {
+            const response = await axios.post('http://localhost:5234/api/Comment', {
                 text: replyText,
                 by: nickname,
-                storyId: storyId, // Ensure StoryId is set
-                commentId: replyToCommentId, // Set the parent comment ID
+                storyId: storyId,
+                commentId: replyToCommentId,
                 time: Math.floor(Date.now() / 1000)
             });
 
-            // Call the callback to update the UI
-            onCommentAdded();
+            // Update the comments list with the new reply
+            setComments(prevComments => {
+                const newComment = response.data;
+                return updateNestedComments(prevComments, replyToCommentId!, [...(prevComments.find(c => c.id === replyToCommentId)?.kids || []), newComment]);
+            });
 
-            // Clear the reply textarea and reset replyToCommentId
             setReplyText('');
             setReplyToCommentId(null);
         } catch (error) {
@@ -130,13 +127,22 @@ const Comments: React.FC<CommentsProps> = ({
         });
     };
 
+    const updateNestedComments = (comments: Comment[], parentId: number, newKids: Comment[]): Comment[] => {
+        return comments.map(comment => {
+            if (comment.id === parentId) {
+                return { ...comment, kids: newKids };
+            } else if (comment.kids) {
+                return { ...comment, kids: updateNestedComments(comment.kids, parentId, newKids) };
+            }
+            return comment;
+        });
+    };
+
     const fetchReplies = async (commentId: number) => {
         try {
-            const response = await axios.get(`http://localhost:5234/api/Comment/byParentId/${commentId}`);
+            const response = await axios.get(`http://localhost:5234/api/Comment/byParentId/${commentId}?fetchReplies=true`);
             setComments(prevComments => {
-                return prevComments.map(comment =>
-                    comment.id === commentId ? { ...comment, kids: response.data } : comment
-                );
+                return updateNestedComments(prevComments, commentId, response.data);
             });
         } catch (error) {
             console.error('Error fetching replies:', error);
@@ -156,7 +162,7 @@ const Comments: React.FC<CommentsProps> = ({
                             className="comment"
                             data-id={comment.id}
                             style={{
-                                marginLeft: `${depth * 20}px`,
+                                marginLeft: `20px`,
                                 borderLeft: '1px lightgray solid',
                                 borderBottom: '1px #f8f6f6 solid',
                                 padding: '10px',
@@ -173,7 +179,7 @@ const Comments: React.FC<CommentsProps> = ({
                                         className="replies-btn"
                                         onClick={() => toggleRepliesVisibility(comment.id)}
                                     >
-                                        {areRepliesVisible ? `Hide Replies` : `Show Replies (${comment.kids.length})`}
+                                        {areRepliesVisible ? `Hide Replies ` : `Show Replies (${comment.kids.length})`}
                                     </span>
                                 )}
                                 <span className="reply-btn" onClick={() => handleReplyClick(comment.id)}>Reply</span>
