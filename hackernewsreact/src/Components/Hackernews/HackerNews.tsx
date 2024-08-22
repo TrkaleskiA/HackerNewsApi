@@ -57,7 +57,7 @@ function HackerNews() {
 
     return (
         <>
-            <HackerNewsHeader onSortChange={handleSortChange} currentSort={sort} onSearchChange={handleSearchChange} filter={filter}/>
+            <HackerNewsHeader onSortChange={handleSortChange} currentSort={sort} onSearchChange={handleSearchChange} filter={filter} onFilterChange={handleFilterChange} />
             <div className="container-fluid body">
                 <div className="row">
                     <div className="col-lg-2 col-md-3 col-sm-12 mb-3 pt-3 div-list">

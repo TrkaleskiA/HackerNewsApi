@@ -6,10 +6,11 @@ interface HackerNewsHeaderProps {
     currentSort: 'date' | 'popularity';
     onSearchChange: (searchQuery: string) => void;
     filter: 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
+    onFilterChange: (filter: 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred') => void;
 }
 
 
-const HackerNewsHeader = ({ onSortChange, currentSort, onSearchChange, filter }: HackerNewsHeaderProps) => {
+const HackerNewsHeader = ({ onSortChange, currentSort, onSearchChange, filter, onFilterChange }: HackerNewsHeaderProps) => {
 
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -19,6 +20,11 @@ const HackerNewsHeader = ({ onSortChange, currentSort, onSearchChange, filter }:
         onSearchChange(query);
     };
 
+    const handleDropdownChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedFilter = event.target.value as 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
+        onFilterChange(selectedFilter);
+    };
+
     const isDropdownEnabled = filter === 'all' || filter === 'starred';
 
     return (
@@ -26,7 +32,7 @@ const HackerNewsHeader = ({ onSortChange, currentSort, onSearchChange, filter }:
             <div className="container-fluid d-flex align-items-center">
                 <img style={{ width: '15%' }} src="photos/logo.png" alt="Hacker News Logo" />
                 <div className="search-container">
-                    <select id="categorySelect" className="form-select" style={{ color: 'gray', border: 'none', outline: 'none', width: '150px' }} disabled={!isDropdownEnabled}>
+                    <select id="categorySelect" className="form-select" style={{ color: 'gray', border: 'none', outline: 'none', width: '150px' }} disabled={!isDropdownEnabled} onChange={handleDropdownChange}>
                         <option value="all">All</option>
                         <option value="story">Stories</option>
                         <option value="job">Job</option>
