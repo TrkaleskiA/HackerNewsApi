@@ -62,6 +62,13 @@
     background-color: darkgray;
 }
 
-.custom-list .custom-list-div.active {
-    background-color: darkgray;
+
+
+.custom-list-div.selected {
+    background-color: darkgrey; 
+    color: white;
+}
+
+.custom-list-div {
+    cursor: pointer;
 }

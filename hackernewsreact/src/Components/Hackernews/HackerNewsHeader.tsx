@@ -5,10 +5,11 @@ interface HackerNewsHeaderProps {
     onSortChange: (sortType: 'date' | 'popularity') => void;
     currentSort: 'date' | 'popularity';
     onSearchChange: (searchQuery: string) => void;
+    filter: 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
 }
 
 
-const HackerNewsHeader = ({ onSortChange, currentSort, onSearchChange }: HackerNewsHeaderProps) => {
+const HackerNewsHeader = ({ onSortChange, currentSort, onSearchChange, filter }: HackerNewsHeaderProps) => {
 
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -18,13 +19,14 @@ const HackerNewsHeader = ({ onSortChange, currentSort, onSearchChange }: HackerN
         onSearchChange(query);
     };
 
+    const isDropdownEnabled = filter === 'all' || filter === 'starred';
 
     return (
         <nav className="navbar navbar-expand-lg">
             <div className="container-fluid d-flex align-items-center">
                 <img style={{ width: '15%' }} src="photos/logo.png" alt="Hacker News Logo" />
                 <div className="search-container">
-                    <select id="categorySelect" className="form-select" style={{ color: 'gray', border: 'none', outline: 'none', width: '150px' }}>
+                    <select id="categorySelect" className="form-select" style={{ color: 'gray', border: 'none', outline: 'none', width: '150px' }} disabled={!isDropdownEnabled}>
                         <option value="all">All</option>
                         <option value="story">Stories</option>
                         <option value="job">Job</option>
