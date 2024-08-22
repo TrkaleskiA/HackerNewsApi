@@ -20,10 +20,7 @@ interface CommentsProps {
     onCommentAdded: () => void;
 }
 
-const Comments: React.FC<CommentsProps> = ({
-    storyId,
-    visibleComments,
-}) => {
+const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onCommentAdded }) => {
     const [newComment, setNewComment] = useState<string>('');
     const [nickname, setNickname] = useState('');
     const [comments, setComments] = useState<Comment[]>([]);
@@ -74,6 +71,7 @@ const Comments: React.FC<CommentsProps> = ({
 
             setComments(prevComments => [...prevComments, response.data]);
             setNewComment('');
+            onCommentAdded();
         } catch (error) {
             console.error('Error submitting comment:', error);
         }
@@ -105,7 +103,7 @@ const Comments: React.FC<CommentsProps> = ({
                 const newComment = response.data;
                 return updateNestedComments(prevComments, replyToCommentId!, [...(prevComments.find(c => c.id === replyToCommentId)?.kids || []), newComment]);
             });
-
+            onCommentAdded();
             setReplyText('');
             setReplyToCommentId(null);
         } catch (error) {
