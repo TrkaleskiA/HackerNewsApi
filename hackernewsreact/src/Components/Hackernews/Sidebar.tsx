@@ -51,7 +51,7 @@ const Sidebar: FC<SidebarProps> = ({ onFilterChange }) => {
                 id="poll"
                 onClick={() => handleFilterClick('poll')}
             >
-                <li className="polls"><a href="#">Polls</a></li>
+                <li className="polls"><a href="">Polls</a></li>
             </div>
             <div
                 className={`custom-list-div ${selectedFilter === 'job' ? 'selected' : ''}`}

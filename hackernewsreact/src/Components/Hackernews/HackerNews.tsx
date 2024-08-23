@@ -14,6 +14,7 @@ type SortType = 'date' | 'popularity';
 function HackerNews() {
     const [nickname, setNickname] = useState<string>('');
     const [filter, setFilter] = useState<FilterType>('all'); // State for filter
+    const [headerFilter, setHeaderFilter] = useState<FilterType>('all'); // Header filter
     const [timePeriod, setTimePeriod] = useState<TimePeriod>('forever');
     const [sort, setSort] = useState<SortType>('date');
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -39,9 +40,16 @@ function HackerNews() {
     };
 
     // Function to handle filter change
+    
     const handleFilterChange = (filterType: FilterType) => {
         setFilter(filterType);
     };
+
+    const handleHeaderFilterChange = (headerFilterType: FilterType) => {
+        setHeaderFilter(headerFilterType);
+    };
+
+
 
     const handleTimePeriodChange = (period: TimePeriod) => {
         setTimePeriod(period);
@@ -54,10 +62,14 @@ function HackerNews() {
     const handleSearchChange = (query: string) => {
         setSearchQuery(query);
     };
+    const combinedFilter = filter === 'all' || filter === 'starred' ? headerFilter : filter;
+
 
     return (
         <>
-            <HackerNewsHeader onSortChange={handleSortChange} currentSort={sort} onSearchChange={handleSearchChange} filter={filter} onFilterChange={handleFilterChange} />
+            <HackerNewsHeader onSortChange={handleSortChange} currentSort={sort} onSearchChange={handleSearchChange} onHeaderFilterChange={handleHeaderFilterChange}
+                sidebarFilter={filter === 'all' || filter === 'starred' ? 'all' : 'other'}
+ />
             <div className="container-fluid body">
                 <div className="row">
                     <div className="col-lg-2 col-md-3 col-sm-12 mb-3 pt-3 div-list">
@@ -65,7 +77,7 @@ function HackerNews() {
                     </div>
                     <div className="col-lg-10 col-md-9 col-sm-12 main-div">
                         <Topbar onTimePeriodChange={handleTimePeriodChange}/>
-                        <Stories filter={filter} timePeriod={timePeriod} sort={sort} searchQuery={searchQuery} />
+                        <Stories filter={combinedFilter} timePeriod={timePeriod} sort={sort} searchQuery={searchQuery} />
                     </div>
                 </div>
             </div>

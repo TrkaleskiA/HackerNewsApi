@@ -5,14 +5,18 @@ interface HackerNewsHeaderProps {
     onSortChange: (sortType: 'date' | 'popularity') => void;
     currentSort: 'date' | 'popularity';
     onSearchChange: (searchQuery: string) => void;
-    filter: 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
-    onFilterChange: (filter: 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred') => void;
+    onHeaderFilterChange: (filter: 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred') => void;
+    sidebarFilter: 'all' | 'starred' | 'other'; // New prop to track sidebar filter
 }
 
 
-const HackerNewsHeader = ({ onSortChange, currentSort, onSearchChange, filter, onFilterChange }: HackerNewsHeaderProps) => {
+const HackerNewsHeader = ({ onSortChange, currentSort, onSearchChange, onHeaderFilterChange,
+    sidebarFilter}: HackerNewsHeaderProps) => {
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [headerFilter, setHeaderFilter] = useState<'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred'>(
+        'all'
+    );
 
     const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const query = event.target.value;
@@ -22,17 +26,18 @@ const HackerNewsHeader = ({ onSortChange, currentSort, onSearchChange, filter, o
 
     const handleDropdownChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedFilter = event.target.value as 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
-        onFilterChange(selectedFilter);
+        setHeaderFilter(selectedFilter);
+        onHeaderFilterChange(selectedFilter);
     };
 
-    const isDropdownEnabled = filter === 'all' || filter === 'starred';
+    const isDropdownEnabled = sidebarFilter === 'all' || sidebarFilter === 'starred';
 
     return (
         <nav className="navbar navbar-expand-lg">
             <div className="container-fluid d-flex align-items-center">
                 <img style={{ width: '15%' }} src="photos/logo.png" alt="Hacker News Logo" />
                 <div className="search-container">
-                    <select id="categorySelect" className="form-select" style={{ color: 'gray', border: 'none', outline: 'none', width: '150px' }} disabled={!isDropdownEnabled} onChange={handleDropdownChange}>
+                    <select id="categorySelect" className="form-select" style={{ color: 'gray', border: 'none', outline: 'none', width: '150px' }} disabled={!isDropdownEnabled} onChange={handleDropdownChange} value={headerFilter}>
                         <option value="all">All</option>
                         <option value="story">Stories</option>
                         <option value="job">Job</option>
