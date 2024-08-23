@@ -17,19 +17,41 @@ namespace HackerNews.DataAccess.Repository
 
         public async Task<Story> GetStoryByIdAsync(long id)
         {
-            return await _context.Stories
-                .Include(s => s.Kids)
+            var story = await _context.Stories
                 .Include(s => s.Parts) // Include parts if needed
                 .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (story != null)
+            {
+                // Fetch only the direct comments (kids) where CommentId is null
+                story.Kids = await _context.Comments
+                    .Where(c => c.StoryId == id && c.CommentId == null) // Only direct comments
+                    .ToListAsync();
+            }
+
+            return story;
         }
+
+
 
         public async Task<IEnumerable<Story>> GetAllStoriesAsync()
         {
-            return await _context.Stories
-                .Include(s => s.Kids)
+            var stories = await _context.Stories
                 .Include(s => s.Parts) // Include parts if needed
                 .ToListAsync();
+
+            foreach (var story in stories)
+            {
+                // Fetch only the direct comments (kids) where CommentId is null for each story
+                story.Kids = await _context.Comments
+                    .Where(c => c.StoryId == story.Id && c.CommentId == null)
+                    .ToListAsync();
+            }
+
+            return stories;
         }
+
+
 
         public async Task AddStoryAsync(Story story)
         {

@@ -1,9 +1,10 @@
-﻿using HackerNewsApi.Services;
+﻿using HackerNewsApi.DTOs;
+using HackerNewsApi.Services.ServicesInterfaces;
 using HackerNews.DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using HackerNewsApi.Services.ServicesInterfaces;
 
 namespace HackerNewsApi.Controllers
 {
@@ -20,26 +21,53 @@ namespace HackerNewsApi.Controllers
             _storyService = storyService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Comment>>> GetAllComments()
+        // Map a single comment to CommentDto
+        private CommentDto MapCommentToDto(Comment comment)
         {
-            var comments = await _commentService.GetAllCommentsAsync();
-            return Ok(comments);
+            return new CommentDto
+            {
+                Id = comment.Id,
+                Text = comment.Text,
+                By = comment.By,
+                StoryId = comment.StoryId,
+                CommentId = comment.CommentId,
+                Time = comment.Time,
+                Type = comment.Type,
+                Kids = comment.Kids?.Select(k => k.Id).ToList() // Only return IDs of replies
+            };
         }
 
+        // Map a list of comments to a list of CommentDto
+        private IEnumerable<CommentDto> MapCommentsToDto(IEnumerable<Comment> comments)
+        {
+            return comments.Select(comment => MapCommentToDto(comment));
+        }
+
+        // Get all comments and return CommentDto
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CommentDto>>> GetAllComments()
+        {
+            var comments = await _commentService.GetAllCommentsAsync();
+            var commentDtos = MapCommentsToDto(comments);
+            return Ok(commentDtos);
+        }
+
+        // Get a comment by id and return CommentDto
         [HttpGet("{id}")]
-        public async Task<ActionResult<Comment>> GetComment(long id)
+        public async Task<ActionResult<CommentDto>> GetComment(long id)
         {
             var comment = await _commentService.GetCommentByIdAsync(id);
             if (comment == null)
             {
                 return NotFound();
             }
-            return Ok(comment);
+            var commentDto = MapCommentToDto(comment);
+            return Ok(commentDto);
         }
 
+        // Create a comment and return CommentDto
         [HttpPost]
-        public async Task<ActionResult<Comment>> CreateComment(Comment comment)
+        public async Task<ActionResult<CommentDto>> CreateComment(Comment comment)
         {
             try
             {
@@ -100,7 +128,8 @@ namespace HackerNewsApi.Controllers
                     return BadRequest("Comment must be associated with a story or parent comment.");
                 }
 
-                return CreatedAtAction(nameof(GetComment), new { id = createdComment.Id }, createdComment);
+                var createdCommentDto = MapCommentToDto(createdComment);
+                return CreatedAtAction(nameof(GetComment), new { id = createdCommentDto.Id }, createdCommentDto);
             }
             catch (Exception ex)
             {
@@ -112,18 +141,17 @@ namespace HackerNewsApi.Controllers
             }
         }
 
-
-
+        // Get comments by parent ID and return CommentDto
         [HttpGet("byParentId/{parentId}")]
-        public async Task<ActionResult<IEnumerable<Comment>>> GetCommentsByParentId(long parentId, [FromQuery] bool fetchReplies = false)
+        public async Task<ActionResult<IEnumerable<CommentDto>>> GetCommentsByParentId(long parentId, [FromQuery] bool fetchReplies = false)
         {
-            var comments = await _commentService.GetCommentsByParentIdAsync(parentId,fetchReplies);
+            var comments = await _commentService.GetCommentsByParentIdAsync(parentId, fetchReplies);
             if (comments == null || !comments.Any())
             {
                 return NotFound($"No comments found for parent ID {parentId}.");
             }
-            return Ok(comments);
+            var commentDtos = MapCommentsToDto(comments);
+            return Ok(commentDtos);
         }
-
     }
 }

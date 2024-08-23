@@ -46,9 +46,8 @@ namespace HackerNews.DataAccess.Repository
             {
                 // Fetch replies to a specific parent comment
                 return await _context.Comments
-                    .Where(c => c.CommentId == parentId) // Replies only
+                    .Where(c => c.CommentId == parentId ) // Replies only
                     .Include(c => c.Kids) // Include kids (replies) of the comment
-                    .ThenInclude(kid => kid.Kids) // Include nested replies as well
                     .ToListAsync();
             }
             else
@@ -57,7 +56,6 @@ namespace HackerNews.DataAccess.Repository
                 return await _context.Comments
                     .Where(c => c.StoryId == parentId && c.CommentId == null) // Main comments only
                     .Include(c => c.Kids) // Include kids (replies) of the comment
-                    .ThenInclude(kid => kid.Kids) // Include nested replies as well
                     .ToListAsync();
             }
         }
