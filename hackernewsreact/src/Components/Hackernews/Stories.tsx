@@ -75,6 +75,7 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
     useEffect(() => {
         axios.get('http://localhost:5234/api/story')
             .then(response => {
+                console.log(response.data)
                 let filteredStories = response.data;
 
                 // Apply the filter based on filter type
@@ -187,7 +188,7 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
             }
             return newVisibleComments;
         });
-    };
+};
 
     const handleCommentAdded = () => {
         setStories(prevStories => prevStories.map(story => {

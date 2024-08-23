@@ -9,7 +9,7 @@ interface Comment {
     text: string;
     by: string;
     time: number;
-    kids?: Comment[];
+    kids?: number[]; // Array of IDs
     storyId?: number;
     commentId?: number;
 }
@@ -24,6 +24,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
     const [newComment, setNewComment] = useState<string>('');
     const [nickname, setNickname] = useState('');
     const [comments, setComments] = useState<Comment[]>([]);
+    const [repliesMap, setRepliesMap] = useState<Map<number, Comment[]>>(new Map());
     const [replyToCommentId, setReplyToCommentId] = useState<number | null>(null);
     const [replyText, setReplyText] = useState<string>('');
     const [expandedComments, setExpandedComments] = useState<Set<number>>(new Set());
@@ -42,6 +43,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
     const fetchComments = async () => {
         try {
             const response = await axios.get(`http://localhost:5234/api/Comment/byParentId/${storyId}?fetchReplies=false`);
+            console.log(response.data);
             setComments(response.data);
         } catch (error) {
             console.error('Error fetching comments:', error);
@@ -98,11 +100,31 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                 time: Math.floor(Date.now() / 1000)
             });
 
-            // Update the comments list with the new reply
-            setComments(prevComments => {
-                const newComment = response.data;
-                return updateNestedComments(prevComments, replyToCommentId!, [...(prevComments.find(c => c.id === replyToCommentId)?.kids || []), newComment]);
-            });
+            const newComment = response.data;
+
+            if (replyToCommentId !== null) {
+                setComments(prevComments => {
+                    const updatedComments = prevComments.map(comment => {
+                        if (comment.id === replyToCommentId) {
+                            return {
+                                ...comment,
+                                kids: [...(comment.kids || []), newComment.id]
+                            };
+                        }
+                        return comment;
+                    });
+                    return updatedComments;
+                });
+
+                setRepliesMap(prevMap => {
+                    const updatedMap = new Map(prevMap);
+                    const replies = updatedMap.get(replyToCommentId) || [];
+                    updatedMap.set(replyToCommentId, [...replies, newComment]);
+                    return updatedMap;
+                });
+            }
+
+
             onCommentAdded();
             setReplyText('');
             setReplyToCommentId(null);
@@ -119,28 +141,25 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
             } else {
                 newSet.add(commentId);
                 // Fetch replies if they are not already present
-                fetchReplies(commentId);
+                if (!repliesMap.has(commentId)) {
+                    fetchReplies(commentId);
+                }
             }
             return newSet;
-        });
-    };
-
-    const updateNestedComments = (comments: Comment[], parentId: number, newKids: Comment[]): Comment[] => {
-        return comments.map(comment => {
-            if (comment.id === parentId) {
-                return { ...comment, kids: newKids };
-            } else if (comment.kids) {
-                return { ...comment, kids: updateNestedComments(comment.kids, parentId, newKids) };
-            }
-            return comment;
         });
     };
 
     const fetchReplies = async (commentId: number) => {
         try {
             const response = await axios.get(`http://localhost:5234/api/Comment/byParentId/${commentId}?fetchReplies=true`);
-            setComments(prevComments => {
-                return updateNestedComments(prevComments, commentId, response.data);
+            const newReplies = response.data;
+            console.log(response.data)
+
+            // Update the replies map with new replies
+            setRepliesMap(prevMap => {
+                const updatedMap = new Map(prevMap);
+                updatedMap.set(commentId, newReplies);
+                return updatedMap;
             });
         } catch (error) {
             console.error('Error fetching replies:', error);
@@ -153,6 +172,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                 {comments.map((comment) => {
                     const timeAgo = formatTime(comment.time);
                     const areRepliesVisible = expandedComments.has(comment.id);
+                    const replies = repliesMap.get(comment.id) || [];
 
                     return (
                         <div
@@ -177,7 +197,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                                         className="replies-btn"
                                         onClick={() => toggleRepliesVisibility(comment.id)}
                                     >
-                                        {areRepliesVisible ? `Hide Replies ` : `Show Replies (${comment.kids.length})`}
+                                        {areRepliesVisible ? `Hide Replies` : `Show Replies (${comment.kids.length})`}
                                     </span>
                                 )}
                                 <span className="reply-btn" onClick={() => handleReplyClick(comment.id)}>Reply</span>
@@ -193,7 +213,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                                 </div>
                             )}
                             <div className="replies-container" style={{ display: areRepliesVisible ? 'block' : 'none' }}>
-                                {comment.kids && renderComments(comment.kids, depth + 1)}
+                                {renderComments(replies, depth + 1)}
                             </div>
                         </div>
                     );

@@ -1,4 +1,5 @@
 ﻿using HackerNews.DataAccess.Entities;
+using HackerNewsApi.DTOs;
 using HackerNewsApi.Services;
 using HackerNewsApi.Services.ServicesInterfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace HackerNewsApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Story>> GetStoryById(long id)
+        public async Task<ActionResult<StoryDto>> GetStoryById(long id)
         {
             var story = await _storyService.GetStoryByIdAsync(id);
 
@@ -28,15 +29,40 @@ namespace HackerNewsApi.Controllers
                 return NotFound();
             }
 
-            return Ok(story);
+            var storyDto = new StoryDto
+            {
+                Id = story.Id,
+                Title = story.Title,
+                Url = story.Url,
+                By = story.By,
+                Descendants = story.Descendants,
+                Score = story.Score,
+                Time = story.Time,
+                Kids = story.Kids?.Select(k => k.Id).ToList() // Only return IDs of comments
+            };
+
+            return Ok(storyDto);
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Story>>> GetAllStories()
+        public async Task<ActionResult<IEnumerable<StoryDto>>> GetAllStories()
         {
             var stories = await _storyService.GetAllStoriesAsync();
-            return Ok(stories);
+            var storyDtos = stories.Select(story => new StoryDto
+            {
+                Id = story.Id,
+                Title = story.Title,
+                Url = story.Url,
+                By = story.By,
+                Descendants = story.Descendants,
+                Score = story.Score,
+                Time = story.Time,
+                Kids = story.Kids?.Select(k => k.Id).ToList()  // Return only IDs
+            }).ToList();
+
+            return Ok(storyDtos);
         }
+
 
         [HttpPost]
         public async Task<ActionResult> AddStory([FromBody] Story story)
