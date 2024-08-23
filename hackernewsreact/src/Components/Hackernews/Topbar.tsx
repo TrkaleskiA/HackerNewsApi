@@ -17,7 +17,7 @@ const Topbar = ({ onTimePeriodChange }: TopbarProps) => {
           <h4>All</h4>
           <div className="d-flex">
                 <p style={{ marginLeft: '15px', marginTop: '22px', color: 'gray' }} ></p>
-                <img className="share1" src="photos/share.png" alt="Share Icon"/>
+                <img className="share1" src="../photos/share.png" alt="Share Icon"/>
           </div>
             <div className="form-check me-3" style={{ marginLeft: 'auto' }} >
                 <input className="form-check-input" type="radio" name="time-period" id="last-24h" value="last-24h" onChange={handleChange} />

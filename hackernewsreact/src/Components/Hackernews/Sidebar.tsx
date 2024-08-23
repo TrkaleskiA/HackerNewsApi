@@ -1,4 +1,5 @@
 import { FC, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
 // Define the type for the filter options
@@ -9,11 +10,13 @@ interface SidebarProps {
 }
 
 const Sidebar: FC<SidebarProps> = ({ onFilterChange }) => {
+    const navigate = useNavigate();
     const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
 
     const handleFilterClick = (filterType: FilterType) => {
         setSelectedFilter(filterType);
         onFilterChange(filterType);
+        navigate(`/hackernews/${filterType}`);
     };
 
     return (
@@ -51,7 +54,7 @@ const Sidebar: FC<SidebarProps> = ({ onFilterChange }) => {
                 id="poll"
                 onClick={() => handleFilterClick('poll')}
             >
-                <li className="polls"><a href="">Polls</a></li>
+                <li className="polls"><a href="#">Polls</a></li>
             </div>
             <div
                 className={`custom-list-div ${selectedFilter === 'job' ? 'selected' : ''}`}

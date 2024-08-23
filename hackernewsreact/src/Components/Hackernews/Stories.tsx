@@ -265,25 +265,25 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
             {stories.length > 0 ? stories.map(story => (
                 <div key={story.id} className="story d-flex flex-column mb-1" data-id={story.id}>
                     <div className="d-flex align-items-start bg-white p-3">
-                        <img className="story-img me-3" src="photos/all.png" alt="Story Image" />
+                        <img className="story-img me-3" src="../photos/all.png" alt="Story Image" />
                         <div>
                             <p style={{ margin: 0 }}>{story.title}</p>
                             <div className="post-details" style={{ color: 'gray', fontSize: '0.9em' }}>
                                 <span>
                                     <img
                                         className={`heart ${likedStories.has(story.id) ? 'active' : ''}`}
-                                        src="photos/heart.png"
+                                        src="../photos/heart.png"
                                         alt="Heart"
                                         onClick={() => handleHeartClick(story.id)}
                                     />
                                     {story.score} points
                                 </span> |
                                 <span>
-                                    <img src="photos/user.png" style={{ width: '15px', verticalAlign: 'middle', marginRight: '5px' }} alt="User" />
+                                    <img src="../photos/user.png" style={{ width: '15px', verticalAlign: 'middle', marginRight: '5px' }} alt="User" />
                                     {story.by}
                                 </span> |
                                 <span>
-                                    <img src="photos/clock.png" style={{ width: '15px', verticalAlign: 'middle', marginRight: '5px' }} alt="Clock" />
+                                    <img src="../photos/clock.png" style={{ width: '15px', verticalAlign: 'middle', marginRight: '5px' }} alt="Clock" />
                                     {formatTime(story.time)}
                                 </span> |
                                 <a href={story.url} target="_blank" rel="noopener noreferrer">
@@ -317,11 +317,11 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                         </div>
                         <div className="comment-section ms-auto d-flex align-items-center">
                             <div style={{ display: 'inline' }} className="comment-btn" onClick={() => handleCommentClick(story.id)}>
-                                <img className="chat" src="photos/chat.png" alt="Chat" />
+                                <img className="chat" src="../photos/chat.png" alt="Chat" />
                                 <p style={{ display: 'inline' }} className="comment-button mb-0">{story.descendants || 0} comments</p>
                             </div>
-                            <img className="share ms-2" src="photos/share.png" alt="Share" />
-                            <img className="star ms-2" src="photos/star.png" alt="Star" />
+                            <img className="share ms-2" src="../photos/share.png" alt="Share" />
+                            <img className="star ms-2" src="../photos/star.png" alt="Star" />
                         </div>
                     </div>
                     <Comments

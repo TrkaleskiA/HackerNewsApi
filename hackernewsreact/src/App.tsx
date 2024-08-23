@@ -12,7 +12,8 @@ function App() {
             <Routes>
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/hackernews" element={<HackerNews />} />
+                <Route path="/hackernews/:filterType" element={<HackerNews />} />
+                <Route path="/hackernews" element={<HackerNews />} /> 
                 <Route path="/addstory" element={<AddStory />} />
             </Routes>
         </Router>
