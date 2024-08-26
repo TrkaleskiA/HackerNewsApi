@@ -38,7 +38,9 @@ namespace HackerNewsApi.Controllers
                 Descendants = story.Descendants,
                 Score = story.Score,
                 Time = story.Time,
-                Kids = story.Kids?.Select(k => k.Id).ToList() // Only return IDs of comments
+                Type = story.Type,
+                Kids = story.Kids?.Select(k => k.Id).ToList(), // Only return IDs of comments
+                Parts = story.Parts
             };
 
             return Ok(storyDto);
@@ -57,7 +59,9 @@ namespace HackerNewsApi.Controllers
                 Descendants = story.Descendants,
                 Score = story.Score,
                 Time = story.Time,
-                Kids = story.Kids?.Select(k => k.Id).ToList()  // Return only IDs
+                Type = story.Type, 
+                Kids = story.Kids?.Select(k => k.Id).ToList(),   // Return only IDs
+                Parts= story.Parts
             }).ToList();
 
             return Ok(storyDtos);
