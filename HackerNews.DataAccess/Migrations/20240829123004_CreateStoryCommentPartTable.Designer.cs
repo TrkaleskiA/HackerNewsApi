@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HackerNews.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240814111152_CreateStoryCommentPartTable")]
+    [Migration("20240829123004_CreateStoryCommentPartTable")]
     partial class CreateStoryCommentPartTable
     {
         /// <inheritdoc />
@@ -40,7 +40,7 @@ namespace HackerNews.DataAccess.Migrations
                     b.Property<long?>("CommentId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("ParentId")
+                    b.Property<long>("StoryId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Text")
@@ -58,7 +58,7 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasIndex("CommentId");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("StoryId");
 
                     b.ToTable("Comments");
                 });
@@ -96,7 +96,7 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasIndex("PollId");
 
-                    b.ToTable("Part");
+                    b.ToTable("Parts");
                 });
 
             modelBuilder.Entity("HackerNews.DataAccess.Entities.Story", b =>
@@ -190,7 +190,9 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasOne("HackerNews.DataAccess.Entities.Story", "Story")
                         .WithMany("Kids")
-                        .HasForeignKey("ParentId");
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Story");
                 });

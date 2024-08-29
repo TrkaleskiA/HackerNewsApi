@@ -38,9 +38,9 @@ namespace HackerNews.DataAccess.Migrations
                     Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     By = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StoryId = table.Column<long>(type: "bigint", nullable: false),
+                    CommentId = table.Column<long>(type: "bigint", nullable: true),
                     Time = table.Column<long>(type: "bigint", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CommentId = table.Column<long>(type: "bigint", nullable: true)
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -54,7 +54,8 @@ namespace HackerNews.DataAccess.Migrations
                         name: "FK_Comments_Stories_StoryId",
                         column: x => x.StoryId,
                         principalTable: "Stories",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,9 +73,9 @@ namespace HackerNews.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Part", x => x.Id);
+                    table.PrimaryKey("PK_Parts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Part_Stories_PollId",
+                        name: "FK_Parts_Stories_PollId",
                         column: x => x.PollId,
                         principalTable: "Stories",
                         principalColumn: "Id",

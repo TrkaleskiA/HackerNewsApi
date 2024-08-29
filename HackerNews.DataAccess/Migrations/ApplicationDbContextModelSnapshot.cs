@@ -37,7 +37,7 @@ namespace HackerNews.DataAccess.Migrations
                     b.Property<long?>("CommentId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("ParentId")
+                    b.Property<long>("StoryId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Text")
@@ -55,7 +55,7 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasIndex("CommentId");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("StoryId");
 
                     b.ToTable("Comments", (string)null);
                 });
@@ -93,7 +93,7 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasIndex("PollId");
 
-                    b.ToTable("Part", (string)null);
+                    b.ToTable("Parts", (string)null);
                 });
 
             modelBuilder.Entity("HackerNews.DataAccess.Entities.Story", b =>
@@ -187,7 +187,9 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasOne("HackerNews.DataAccess.Entities.Story", "Story")
                         .WithMany("Kids")
-                        .HasForeignKey("ParentId");
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Story");
                 });
