@@ -110,5 +110,19 @@ namespace HackerNewsApi.Controllers
 
             return Ok(story);
         }
+
+        [HttpPost("like")]
+        public IActionResult LikeStory(Guid userId, long storyId)
+        {
+            _storyService.LikeOrUnlikeStory(userId, storyId);
+            return Ok();
+        }
+
+        [HttpGet("liked/{userId}")]
+        public IActionResult GetLikedStories(Guid userId)
+        {
+            var likedStories = _storyService.GetLikedStories(userId);
+            return Ok(likedStories);
+        }
     }
 }

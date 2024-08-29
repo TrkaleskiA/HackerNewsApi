@@ -3,6 +3,7 @@ import axios from 'axios';
 import './Stories.css';
 import Comments from './Comments';
 import Options from './Options';
+import Cookies from 'js-cookie';
 
 // Define the type for the filter
 type FilterType = 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
@@ -60,6 +61,10 @@ const formatTime = (timestamp: number) => {
     }
 
     return 'a long time ago';
+};
+
+const getUserIdFromCookie = (): string | undefined => {
+    return Cookies.get('userId');
 };
 
 const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
@@ -151,32 +156,49 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
             .finally(() => setLoading(false));
     }, [filter, timePeriod, sort, searchQuery]);
 
-    const handleHeartClick = (storyId: number) => {
-        setLikedStories(prevLikedStories => {
-            const newLikedStories = new Set(prevLikedStories);
-            if (newLikedStories.has(storyId)) {
-                newLikedStories.delete(storyId);
-                setStories(prevStories => prevStories.map(story =>
-                    story.id === storyId ? { ...story, score: story.score - 1 } : story
-                ));
-            } else {
-                newLikedStories.add(storyId);
-                setStories(prevStories => prevStories.map(story =>
-                    story.id === storyId ? { ...story, score: story.score + 1 } : story
-                ));
+    useEffect(() => {
+        const fetchLikedStories = async () => {
+            const userId = getUserIdFromCookie();
+            if (userId) {
+                try {
+                    const response = await fetch(`/api/story/liked/${userId}`);
+                    const likedStoryIds = await response.json();
+                    setLikedStories(new Set(likedStoryIds));
+                } catch (error) {
+                    console.error('Error fetching liked stories:', error);
+                }
             }
+        };
 
-            axios.post(`http://localhost:5234/api/Story/like/${storyId}`)
-                .then(response => {
-                    console.log("Like recorded successfully", response.data);
-                })
-                .catch(error => {
-                    console.error("Error recording like:", error);
-                });
+        fetchLikedStories();
+    }, []);
 
-            return newLikedStories;
-        });
+    const toggleLikeStory = async (storyId: number) => {
+        const userId = getUserIdFromCookie();
+        if (userId) {
+            await fetch('/api/story/like', {
+                method: 'POST',
+                body: JSON.stringify({ userId, storyId }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            fetchLikedStories(); // Refresh liked stories after action
+        }
     };
+
+    const fetchLikedStories = async () => {
+        const userId = getUserIdFromCookie();
+        if (userId) {
+            try {
+                const response = await fetch(`/api/story/liked/${userId}`);
+                const likedStoryIds: number[] = await response.json();
+                setLikedStories(new Set(likedStoryIds));
+            } catch (error) {
+                console.error('Error fetching liked stories:', error);
+            }
+        }
+    };
+
+  
 
     const handleCommentClick = (storyId: number) => {
         setVisibleComments(prev => {
@@ -277,7 +299,7 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                                         className={`heart ${likedStories.has(story.id) ? 'active' : ''}`}
                                         src="../photos/heart.png"
                                         alt="Heart"
-                                        onClick={() => handleHeartClick(story.id)}
+                                        onClick={() => toggleLikeStory(story.id)}
                                     />
                                     {story.score} points
                                 </span> |

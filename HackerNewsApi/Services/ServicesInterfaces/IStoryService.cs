@@ -13,5 +13,7 @@ namespace HackerNewsApi.Services.ServicesInterfaces
 
         // New method for updating the story
         Task UpdateStoryAsync(Story story);
+        void LikeOrUnlikeStory(Guid userId, long storyId);
+        List<long> GetLikedStories(Guid userId);
     }
 }

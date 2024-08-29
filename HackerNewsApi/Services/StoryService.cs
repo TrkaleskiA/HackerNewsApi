@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HackerNewsApi.Services.ServicesInterfaces;
 using HackerNews.DataAccess.Entities.Enums;
+using HackerNews.DataAccess.Repository;
 
 namespace HackerNewsApi.Services
 {
@@ -11,11 +12,13 @@ namespace HackerNewsApi.Services
     {
         private readonly IStoryRepository _storyRepository;
         private readonly IPartService _partService;
+        private readonly IUserRepository _userRepository;
 
-        public StoryService(IStoryRepository storyRepository, IPartService partService)
+        public StoryService(IStoryRepository storyRepository, IPartService partService, IUserRepository userRepository)
         {
             _storyRepository = storyRepository;
             _partService = partService;
+            _userRepository = userRepository;
         }
 
         public async Task<Story> GetStoryByIdAsync(long id)
@@ -55,5 +58,33 @@ namespace HackerNewsApi.Services
         {
             await _storyRepository.UpdateStoryAsync(story);
         }
+        public void LikeOrUnlikeStory(Guid userId, long storyId)
+        {
+            var user = _userRepository.GetUserById(userId);
+            var story = _storyRepository.GetStoryById(storyId);
+
+            if (user.LikedStoryIds.Contains(storyId))
+            {
+                // Unlike the story
+                user.LikedStoryIds.Remove(storyId);
+                story.Score -= 1;
+            }
+            else
+            {
+                // Like the story
+                user.LikedStoryIds.Add(storyId);
+                story.Score += 1;
+            }
+
+            _userRepository.UpdateUser(user);
+            _storyRepository.UpdateStory(story);
+        }
+
+        public List<long> GetLikedStories(Guid userId)
+        {
+            var user = _userRepository.GetUserById(userId);
+            return user.LikedStoryIds;
+        }
+
     }
 }

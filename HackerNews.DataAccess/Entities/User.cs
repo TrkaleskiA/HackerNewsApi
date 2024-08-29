@@ -22,6 +22,6 @@ namespace HackerNews.DataAccess.Entities
         public string? Nickname { get; set; }
 
         public bool IsAdmin { get; set; }
-
+        public List<long> LikedStoryIds { get; set; } = new List<long>();
     }
 }
