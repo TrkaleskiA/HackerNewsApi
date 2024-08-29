@@ -1,5 +1,4 @@
 ﻿using HackerNews.DataAccess.Entities;
-using HackerNews.DataAccess.Repository;
 using HackerNews.DataAccess.Repository.RepositoryInterfaces;
 using HackerNewsApi.Services.ServicesInterfaces;
 using System.Collections.Generic;
@@ -32,10 +31,27 @@ namespace HackerNewsApi.Services
             return comment;
         }
 
-        public Task UpdateCommentAsync(Comment comment)
+        public async Task UpdateCommentAsync(Comment updatedComment)
         {
-            return _repository.UpdateCommentAsync(comment);
+            // Fetch the existing comment from the repository
+            var existingComment = await _repository.GetCommentByIdAsync(updatedComment.Id);
+
+            if (existingComment != null)
+            {
+                // Update the relevant fields
+                existingComment.Text = updatedComment.Text;
+                existingComment.By = updatedComment.By;
+                existingComment.Time = updatedComment.Time;
+
+                // Ensure existing Kids are updated by comparing the updatedComment's Kids
+                existingComment.Kids = updatedComment.Kids ?? new List<Comment>();
+
+                // Save the changes to the repository
+                await _repository.UpdateCommentAsync(existingComment);
+            }
         }
+
+
 
         public async Task<IEnumerable<Comment>> GetCommentsByParentIdAsync(long parentId, bool fetchReplies)
         {
