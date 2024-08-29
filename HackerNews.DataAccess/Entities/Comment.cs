@@ -17,9 +17,9 @@ namespace HackerNews.DataAccess.Entities
         [Required]
         public string By { get; set; }
 
-        public long? StoryId { get; set; }  // Renamed from ParentId
+        public long StoryId { get; set; }
 
-        public long? CommentId { get; set; }  // This is the actual parent comment if it’s a reply.
+        public long? CommentId { get; set; }
 
 
         public long Time { get; set; } 

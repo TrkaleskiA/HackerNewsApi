@@ -37,7 +37,7 @@ namespace HackerNews.DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     By = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ParentId = table.Column<long>(type: "bigint", nullable: true),
+                    StoryId = table.Column<long>(type: "bigint", nullable: false),
                     Time = table.Column<long>(type: "bigint", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CommentId = table.Column<long>(type: "bigint", nullable: true)
@@ -51,8 +51,8 @@ namespace HackerNews.DataAccess.Migrations
                         principalTable: "Comments",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Comments_Stories_ParentId",
-                        column: x => x.ParentId,
+                        name: "FK_Comments_Stories_StoryId",
+                        column: x => x.StoryId,
                         principalTable: "Stories",
                         principalColumn: "Id");
                 });
@@ -87,9 +87,9 @@ namespace HackerNews.DataAccess.Migrations
                 column: "CommentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_ParentId",
+                name: "IX_Comments_StoryId",
                 table: "Comments",
-                column: "ParentId");
+                column: "StoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Parts_PollId",

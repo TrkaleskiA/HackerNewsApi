@@ -188,15 +188,17 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
             }
             return newVisibleComments;
         });
-};
+    };
 
-    const handleCommentAdded = () => {
-        setStories(prevStories => prevStories.map(story => {
-            if (visibleComments.has(story.id)) {
-                return { ...story, descendants: story.descendants + 1 };
-            }
-            return story;
-        }));
+    const handleCommentAdded = (storyId: number) => {
+        setStories(prevStories =>
+            prevStories.map(story => {
+                if (story.id === storyId) {
+                    return { ...story, descendants: story.descendants + 1 };
+                }
+                return story;
+            })
+        );
     };
 
     const handlePollClick = (storyId: number) => {
@@ -291,10 +293,10 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                                     {story.url}
                                 </a>
                             </div>
-                            
+
                         </div>
-                   
-                        
+
+
                         <div className="ms-auto d-flex align-items-center">
                             {story.type === 3 && (
                                 <div className="ms-auto d-flex align-items-center">

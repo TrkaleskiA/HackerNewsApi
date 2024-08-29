@@ -17,13 +17,14 @@ interface Comment {
 interface CommentsProps {
     storyId: number;
     visibleComments: Set<number>;
-    onCommentAdded: () => void;
+    onCommentAdded: (storyId: number) => void;
 }
 
 const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onCommentAdded }) => {
     const [newComment, setNewComment] = useState<string>('');
     const [nickname, setNickname] = useState('');
     const [comments, setComments] = useState<Comment[]>([]);
+    const [commentsMap, setCommentsMap] = useState<Map<number, Comment[]>>(new Map());
     const [repliesMap, setRepliesMap] = useState<Map<number, Comment[]>>(new Map());
     const [replyToCommentId, setReplyToCommentId] = useState<number | null>(null);
     const [replyText, setReplyText] = useState<string>('');
@@ -41,20 +42,32 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
     }, [navigate]);
 
     const fetchComments = async () => {
-        try {
-            const response = await axios.get(`http://localhost:5234/api/Comment/byParentId/${storyId}?fetchReplies=false`);
-            console.log(response.data);
-            setComments(response.data);
-        } catch (error) {
-            console.error('Error fetching comments:', error);
+        if (commentsMap.has(storyId)) {
+            setComments(commentsMap.get(storyId)!);
+        } else {
+            try {
+                const response = await axios.get(`http://localhost:5234/api/Comment/byParentId/${storyId}?fetchReplies=false`);
+                console.log(response.data);
+                setCommentsMap(prevMap => {
+                    const updatedMap = new Map(prevMap);
+                    updatedMap.set(storyId, response.data);
+                    return updatedMap;
+                });
+            } catch (error) {
+                console.error('Error fetching comments:', error);
+            }
         }
+
     };
 
     useEffect(() => {
-        if (visibleComments.has(storyId)) {
+        if (visibleComments.has(storyId) && !commentsMap.has(storyId)) {
             fetchComments();
+        } else if (visibleComments.has(storyId)) {
+            setComments(commentsMap.get(storyId)!);
         }
-    }, [storyId, visibleComments]);
+    }, [storyId, visibleComments, commentsMap]);
+
 
     const handleCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setNewComment(event.target.value);
@@ -71,9 +84,10 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                 time: Math.floor(Date.now() / 1000)
             });
 
+            // Update the comments for the specific story
             setComments(prevComments => [...prevComments, response.data]);
             setNewComment('');
-            onCommentAdded();
+            onCommentAdded(storyId);  // This should trigger the descendant update
         } catch (error) {
             console.error('Error submitting comment:', error);
         }
@@ -99,6 +113,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                 commentId: replyToCommentId,
                 time: Math.floor(Date.now() / 1000)
             });
+            console.log('Submitting reply with storyId:', storyId);
 
             const newComment = response.data;
 
@@ -124,8 +139,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                 });
             }
 
-
-            onCommentAdded();
+            onCommentAdded(storyId);  // This should trigger the descendant update
             setReplyText('');
             setReplyToCommentId(null);
         } catch (error) {

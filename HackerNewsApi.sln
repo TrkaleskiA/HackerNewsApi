@@ -8,6 +8,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HackerNews.DataAccess", "HackerNews.DataAccess\HackerNews.DataAccess.csproj", "{C89AC059-3ECE-4E9C-833F-C8166D4485D0}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "hackernewsreact", "HackerNewsReact\hackernewsreact.esproj", "{69D57F84-5FD6-4039-A9B5-152C6A93246D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{39073955-DF43-46AC-8F0A-BE3D9B8E77D3} = {39073955-DF43-46AC-8F0A-BE3D9B8E77D3}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

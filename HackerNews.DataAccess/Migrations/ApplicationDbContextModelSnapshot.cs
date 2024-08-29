@@ -37,7 +37,7 @@ namespace HackerNews.DataAccess.Migrations
                     b.Property<long?>("CommentId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("StoryId")
+                    b.Property<long?>("ParentId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Text")
@@ -55,9 +55,9 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasIndex("CommentId");
 
-                    b.HasIndex("StoryId");
+                    b.HasIndex("ParentId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("HackerNews.DataAccess.Entities.Part", b =>
@@ -93,7 +93,7 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasIndex("PollId");
 
-                    b.ToTable("Parts");
+                    b.ToTable("Part", (string)null);
                 });
 
             modelBuilder.Entity("HackerNews.DataAccess.Entities.Story", b =>
@@ -130,7 +130,7 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Stories");
+                    b.ToTable("Stories", (string)null);
                 });
 
             modelBuilder.Entity("HackerNews.DataAccess.Entities.User", b =>
@@ -159,7 +159,7 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("HackerNews.DataAccess.YourEntity", b =>
@@ -176,7 +176,7 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("YourEntities");
+                    b.ToTable("YourEntities", (string)null);
                 });
 
             modelBuilder.Entity("HackerNews.DataAccess.Entities.Comment", b =>
@@ -187,7 +187,7 @@ namespace HackerNews.DataAccess.Migrations
 
                     b.HasOne("HackerNews.DataAccess.Entities.Story", "Story")
                         .WithMany("Kids")
-                        .HasForeignKey("StoryId");
+                        .HasForeignKey("ParentId");
 
                     b.Navigation("Story");
                 });

@@ -93,16 +93,16 @@ namespace HackerNewsApi.Controllers
                     await _commentService.UpdateCommentAsync(parentComment);
 
                     // Increment the descendants field of the story
-                    var parentStory = await _storyService.GetStoryByIdAsync(parentComment.StoryId.Value);
+                    var parentStory = await _storyService.GetStoryByIdAsync(parentComment.StoryId);
                     if (parentStory != null)
                     {
                         parentStory.Descendants = (parentStory.Descendants ?? 0) + 1;
                         await _storyService.UpdateStoryAsync(parentStory);
                     }
                 }
-                else if (comment.StoryId.HasValue) // If it's a story comment
+                else if (comment.StoryId>0) // If it's a story comment
                 {
-                    var parentStory = await _storyService.GetStoryByIdAsync(comment.StoryId.Value);
+                    var parentStory = await _storyService.GetStoryByIdAsync(comment.StoryId);
                     if (parentStory != null)
                     {
                         // Initialize Kids if null
