@@ -44,15 +44,18 @@ namespace HackerNews.DataAccess.Repository
             return await _context.Users.AnyAsync(u => u.Username == username);
         }
 
-        public User GetUserById(Guid userId)
-        {
-            return _context.Users.Include(u => u.LikedStoryIds).FirstOrDefault(u => u.Id == userId);
-        }
 
         public void UpdateUser(User user)
         {
             _context.Users.Update(user);
             _context.SaveChanges();
         }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

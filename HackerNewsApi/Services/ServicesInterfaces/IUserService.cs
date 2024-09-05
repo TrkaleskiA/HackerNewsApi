@@ -13,5 +13,6 @@ namespace HackerNewsApi.Services.ServicesInterfaces
         Task RegisterUserAsync(User user);
         Task<User> LoginAsync(string username, string password);
         Task<bool> CheckUsernameAvailabilityAsync(string username);
+
     }
 }

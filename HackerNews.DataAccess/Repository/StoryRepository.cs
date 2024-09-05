@@ -65,11 +65,6 @@ namespace HackerNews.DataAccess.Repository
             await _context.SaveChangesAsync();
         }
 
-        public Story GetStoryById(long storyId)
-        {
-            return _context.Stories.FirstOrDefault(s => s.Id == storyId);
-        }
-
         public void UpdateStory(Story story)
         {
             _context.Stories.Update(story);

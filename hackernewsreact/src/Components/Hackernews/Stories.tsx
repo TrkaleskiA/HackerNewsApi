@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
 import axios from 'axios';
-import './Stories.css';
+import Cookies from 'js-cookie';
+import { useEffect, useState } from 'react';
 import Comments from './Comments';
 import Options from './Options';
-import Cookies from 'js-cookie';
+import './Stories.css';
 
 // Define the type for the filter
 type FilterType = 'all' | 'hot' | 'show-hn' | 'ask-hn' | 'poll' | 'job' | 'starred';
@@ -64,8 +64,10 @@ const formatTime = (timestamp: number) => {
 };
 
 const getUserIdFromCookie = (): string | undefined => {
-    return Cookies.get('userId');
+    const userCookie = Cookies.get('user');
+    return userCookie ? JSON.parse(userCookie).id : undefined;
 };
+
 
 const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
     const [stories, setStories] = useState<Story[]>([]);
@@ -76,12 +78,22 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
     const [selectedPollOption, setSelectedPollOption] = useState<Record<number, number | null>>({});
     const [visiblePolls, setVisiblePolls] = useState<Set<number>>(new Set());
 
-
     useEffect(() => {
-        axios.get('http://localhost:5234/api/story')
-            .then(response => {
-                console.log(response.data)
+        const fetchStories = async () => {
+            try {
+                const response = await axios.get('http://localhost:5234/api/story');
                 let filteredStories = response.data;
+
+                const userId = getUserIdFromCookie();
+
+                // Fetch liked stories if user is logged in
+                if (userId) {
+                    const likedStoriesResponse = await fetch(`http://localhost:5234/api/story/likedstories/${userId}`);
+                    if (likedStoriesResponse.ok) {
+                        const likedStoryIds: number[] = await likedStoriesResponse.json();
+                        setLikedStories(new Set(likedStoryIds));
+                    }
+                }
 
                 // Apply the filter based on filter type
                 switch (filter) {
@@ -136,6 +148,8 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                     story.by.toLowerCase().includes(searchQuery.toLowerCase())
                 );
 
+
+                // Fetch poll parts
                 const fetchPollParts = async () => {
                     const updatedStories = await Promise.all(filteredStories.map(async (story: Story) => {
                         if (story.type === 3) {
@@ -148,57 +162,65 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                 };
 
                 fetchPollParts();
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error fetching stories:', error);
                 setError('Failed to load stories');
-            })
-            .finally(() => setLoading(false));
-    }, [filter, timePeriod, sort, searchQuery]);
-
-    useEffect(() => {
-        const fetchLikedStories = async () => {
-            const userId = getUserIdFromCookie();
-            if (userId) {
-                try {
-                    const response = await fetch(`/api/story/liked/${userId}`);
-                    const likedStoryIds = await response.json();
-                    setLikedStories(new Set(likedStoryIds));
-                } catch (error) {
-                    console.error('Error fetching liked stories:', error);
-                }
+            } finally {
+                setLoading(false);
             }
         };
 
-        fetchLikedStories();
-    }, []);
+        fetchStories();
+    }, [filter, timePeriod, sort, searchQuery]);
 
+   
     const toggleLikeStory = async (storyId: number) => {
         const userId = getUserIdFromCookie();
         if (userId) {
-            await fetch('/api/story/like', {
-                method: 'POST',
-                body: JSON.stringify({ userId, storyId }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-            fetchLikedStories(); // Refresh liked stories after action
-        }
-    };
-
-    const fetchLikedStories = async () => {
-        const userId = getUserIdFromCookie();
-        if (userId) {
             try {
-                const response = await fetch(`/api/story/liked/${userId}`);
-                const likedStoryIds: number[] = await response.json();
-                setLikedStories(new Set(likedStoryIds));
+                // Make the POST request to toggle the like status
+                const formData = new URLSearchParams();
+                formData.append('userId', userId);
+                formData.append('storyId', storyId.toString());
+
+                const response = await fetch('http://localhost:5234/api/story/like', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString(),
+                });
+
+                if (response.ok) {
+                    // Fetch the user's liked stories from the backend
+                    debugger
+                    const likedStoriesResponse = await fetch(`http://localhost:5234/api/story/likedstories/${userId}`);
+                    if (likedStoriesResponse.ok) {
+                        const likedStoryIds: number[] = await likedStoriesResponse.json();
+                        const isLiked = likedStoryIds.includes(storyId);
+
+                        // Update the liked stories set
+                        setLikedStories(new Set(likedStoryIds));
+
+                        // Update the stories with the new score
+                        setStories(prevStories =>
+                            prevStories.map(story =>
+                                story.id === storyId
+                                    ? {
+                                        ...story,
+                                        score: isLiked ? story.score + 1 : story.score - 1
+                                    }
+                                    : story
+                            )
+                        );
+                    }
+                } else {
+                    console.error('Failed to toggle like status');
+                }
             } catch (error) {
-                console.error('Error fetching liked stories:', error);
+                console.error('Error toggling like status:', error);
             }
         }
     };
 
-  
 
     const handleCommentClick = (storyId: number) => {
         setVisibleComments(prev => {

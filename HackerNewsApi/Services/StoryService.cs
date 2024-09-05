@@ -58,10 +58,20 @@ namespace HackerNewsApi.Services
         {
             await _storyRepository.UpdateStoryAsync(story);
         }
-        public void LikeOrUnlikeStory(Guid userId, long storyId)
+        public async Task LikeOrUnlikeStoryAsync(Guid userId, long storyId)
         {
-            var user = _userRepository.GetUserById(userId);
-            var story = _storyRepository.GetStoryById(storyId);
+            var user = await _userRepository.GetByIdAsync(userId);
+            var story = await _storyRepository.GetStoryByIdAsync(storyId);
+
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            if (story == null)
+            {
+                throw new Exception("Story not found.");
+            }
 
             if (user.LikedStoryIds.Contains(storyId))
             {
@@ -76,15 +86,26 @@ namespace HackerNewsApi.Services
                 story.Score += 1;
             }
 
-            _userRepository.UpdateUser(user);
-            _storyRepository.UpdateStory(story);
+            await _userRepository.UpdateUserAsync(user);
+            await _storyRepository.UpdateStoryAsync(story);
         }
 
-        public List<long> GetLikedStories(Guid userId)
+
+        public async Task<List<long>> GetLikedStoriesAsync(Guid userId)
         {
-            var user = _userRepository.GetUserById(userId);
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
             return user.LikedStoryIds;
         }
 
+
+        /*public List<long> GetLikedStories(Guid userId)
+        {
+            var user = _userRepository.GetByIdAsync(userId);
+            return user.LikedStoryIds;
+        }*/
     }
 }
