@@ -110,5 +110,48 @@ namespace HackerNewsApi.Controllers
 
             return Ok(story);
         }
+
+        [HttpPost("like")]
+        public async  Task<IActionResult> LikeStory([FromForm] string userId, [FromForm] string storyId)
+        {
+            /*Guid user = new Guid(userId);
+            long story = long.Parse(storyId);
+            _storyService.LikeOrUnlikeStoryAsync(user, story);
+            return Ok();*/
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(storyId))
+            {
+                return BadRequest("Invalid userId or storyId.");
+            }
+
+            Guid userGuid;
+            if (!Guid.TryParse(userId, out userGuid))
+            {
+                return BadRequest("Invalid userId format.");
+            }
+
+            long storyLong;
+            if (!long.TryParse(storyId, out storyLong))
+            {
+                return BadRequest("Invalid storyId format.");
+            }
+
+            await _storyService.LikeOrUnlikeStoryAsync(userGuid, storyLong);
+            return Ok();
+        }
+
+        [HttpGet("likedstories/{userId}")]
+        public async Task<IActionResult> GetLikedStories(Guid userId)
+        {
+            try
+            {
+                var likedStories = await _storyService.GetLikedStoriesAsync(userId);
+                return Ok(likedStories);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (optional)
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

@@ -14,5 +14,8 @@ namespace HackerNews.DataAccess.Repository.RepositoryInterfaces
         Task AddAsync(User user);
         Task<User> GetByUsernameAsync(string username);
         Task<bool> UsernameExistsAsync(string username);
+       
+        void UpdateUser(User user);
+        Task UpdateUserAsync(User user);
     }
 }
