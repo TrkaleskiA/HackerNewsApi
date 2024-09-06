@@ -29,6 +29,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
     const [replyToCommentId, setReplyToCommentId] = useState<number | null>(null);
     const [replyText, setReplyText] = useState<string>('');
     const [expandedComments, setExpandedComments] = useState<Set<number>>(new Set());
+    const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -42,32 +43,29 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
     }, [navigate]);
 
     const fetchComments = async () => {
-        if (commentsMap.has(storyId)) {
-            setComments(commentsMap.get(storyId)!);
-        } else {
-            try {
-                const response = await axios.get(`http://localhost:5234/api/Comment/byParentId/${storyId}?fetchReplies=false`);
-                console.log(response.data);
-                setCommentsMap(prevMap => {
-                    const updatedMap = new Map(prevMap);
-                    updatedMap.set(storyId, response.data);
-                    return updatedMap;
-                });
-            } catch (error) {
-                console.error('Error fetching comments:', error);
-            }
-        }
+        if (commentsMap.has(storyId)) return; // Skip fetching if already loaded
 
+        setLoading(true);
+        try {
+            const response = await axios.get(`http://localhost:5234/api/Comment/byParentId/${storyId}`);
+            setCommentsMap(prevMap => {
+                const updatedMap = new Map(prevMap);
+                updatedMap.set(storyId, response.data);
+                return updatedMap;
+            });
+            setComments(response.data);
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
-        if (visibleComments.has(storyId) && !commentsMap.has(storyId)) {
+        if (visibleComments.has(storyId)) {
             fetchComments();
-        } else if (visibleComments.has(storyId)) {
-            setComments(commentsMap.get(storyId)!);
         }
-    }, [storyId, visibleComments, commentsMap]);
-
+    }, [storyId, visibleComments]);
 
     const handleCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setNewComment(event.target.value);
@@ -84,16 +82,24 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                 time: Math.floor(Date.now() / 1000)
             });
 
-            // Update the comments for the specific story
             setComments(prevComments => [...prevComments, response.data]);
             setNewComment('');
-            onCommentAdded(storyId);  // This should trigger the descendant update
+            onCommentAdded(storyId);
         } catch (error) {
             console.error('Error submitting comment:', error);
         }
     };
 
+    useEffect(() => {
+        // Debugging to ensure that replyToCommentId is being set correctly
+        if (replyToCommentId !== null && replyToCommentId > 0) {
+            console.log(`Replying to comment with id: ${replyToCommentId}`);
+        }
+    }, [replyToCommentId]);
+
     const handleReplyClick = (parentId: number) => {
+        // Make sure we set the correct reply ID, regardless of new/old comment
+        console.log('Setting replyToCommentId:', parentId);
         setReplyToCommentId(parentId);
         setReplyText('');
     };
@@ -103,45 +109,48 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
     };
 
     const handleReplySubmit = async () => {
-        if (replyText.trim() === '') return;
+        if (replyText.trim() === '' || replyToCommentId === null) return;
+
+        console.log('Submitting reply with storyId:', storyId);
+        console.log('Submitting reply with CommentId:', replyToCommentId);
 
         try {
-            const response = await axios.post('http://localhost:5234/api/Comment', {
+            // Post reply to the API
+            const response = await axios.post('http://localhost:5234/api/Comment/addReply', {
                 text: replyText,
                 by: nickname,
                 storyId: storyId,
-                commentId: replyToCommentId,
-                time: Math.floor(Date.now() / 1000)
+                commentId: replyToCommentId, // Ensure this is correct
+                time: Math.floor(Date.now() / 1000),
             });
-            console.log('Submitting reply with storyId:', storyId);
 
-            const newComment = response.data;
+            const newReply = response.data;
 
-            if (replyToCommentId !== null) {
-                setComments(prevComments => {
-                    const updatedComments = prevComments.map(comment => {
-                        if (comment.id === replyToCommentId) {
-                            return {
-                                ...comment,
-                                kids: [...(comment.kids || []), newComment.id]
-                            };
-                        }
-                        return comment;
-                    });
-                    return updatedComments;
-                });
+            // Update the replies state with the new reply
+            setRepliesMap(prevMap => {
+                const updatedMap = new Map(prevMap);
+                const replies = updatedMap.get(replyToCommentId) || [];
+                updatedMap.set(replyToCommentId, [...replies, newReply]);
+                return updatedMap;
+            });
 
-                setRepliesMap(prevMap => {
-                    const updatedMap = new Map(prevMap);
-                    const replies = updatedMap.get(replyToCommentId) || [];
-                    updatedMap.set(replyToCommentId, [...replies, newComment]);
-                    return updatedMap;
-                });
-            }
+            // Update the parent comment's kids list
+            setComments(prevComments => prevComments.map(comment => {
+                if (comment.id === replyToCommentId) {
+                    return {
+                        ...comment,
+                        kids: [...(comment.kids || []), newReply.id]
+                    };
+                }
+                return comment;
+            }));
 
-            onCommentAdded(storyId);  // This should trigger the descendant update
+            // Ensure descendants count is updated
+            await onCommentAdded(storyId);
+
             setReplyText('');
             setReplyToCommentId(null);
+
         } catch (error) {
             console.error('Error submitting reply:', error);
         }
@@ -154,7 +163,6 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                 newSet.delete(commentId);
             } else {
                 newSet.add(commentId);
-                // Fetch replies if they are not already present
                 if (!repliesMap.has(commentId)) {
                     fetchReplies(commentId);
                 }
@@ -165,14 +173,10 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
 
     const fetchReplies = async (commentId: number) => {
         try {
-            const response = await axios.get(`http://localhost:5234/api/Comment/byParentId/${commentId}?fetchReplies=true`);
-            const newReplies = response.data;
-            console.log(response.data)
-
-            // Update the replies map with new replies
+            const response = await axios.get(`http://localhost:5234/api/Comment/replies/byParentId/${commentId}`);
             setRepliesMap(prevMap => {
                 const updatedMap = new Map(prevMap);
-                updatedMap.set(commentId, newReplies);
+                updatedMap.set(commentId, response.data);
                 return updatedMap;
             });
         } catch (error) {
@@ -194,7 +198,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                             className="comment"
                             data-id={comment.id}
                             style={{
-                                marginLeft: `20px`,
+                                marginLeft: `${depth * 20}px`,
                                 borderLeft: '1px lightgray solid',
                                 borderBottom: '1px #f8f6f6 solid',
                                 padding: '10px',
@@ -270,9 +274,11 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                     />
                     <button onClick={handleCommentSubmit} className="submit-btn">Add Comment</button>
                 </div>
-                <div className="comments-display bg-white">
-                    {renderComments(comments)}
-                </div>
+                {loading ? <div>Loading comments...</div> : (
+                    <div className="comments-display bg-white">
+                        {renderComments(comments)}
+                    </div>
+                )}
             </div>
         )
     );
