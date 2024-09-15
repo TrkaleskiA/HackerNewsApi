@@ -77,6 +77,8 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
     const [error, setError] = useState('');
     const [selectedPollOption, setSelectedPollOption] = useState<Record<number, number | null>>({});
     const [visiblePolls, setVisiblePolls] = useState<Set<number>>(new Set());
+    const [votedOptions, setVotedOptions] = useState<Set<number>>(new Set());
+
 
     useEffect(() => {
         const fetchStories = async () => {
@@ -93,7 +95,14 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                         const likedStoryIds: number[] = await likedStoriesResponse.json();
                         setLikedStories(new Set(likedStoryIds));
                     }
+
+                    const votedOptionsResponse = await fetch(`http://localhost:5234/api/part/votedpolls/${userId}`)
+                    if (votedOptionsResponse.ok) {
+                        const votedoptionsIds: number[] = await votedOptionsResponse.json();
+                        setVotedOptions(new Set(votedoptionsIds));
+                    }
                 }
+
 
                 // Apply the filter based on filter type
                 switch (filter) {
@@ -173,7 +182,9 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
         fetchStories();
     }, [filter, timePeriod, sort, searchQuery]);
 
-   
+ 
+
+
     const toggleLikeStory = async (storyId: number) => {
         const userId = getUserIdFromCookie();
         if (userId) {
@@ -191,7 +202,7 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
 
                 if (response.ok) {
                     // Fetch the user's liked stories from the backend
-                    debugger
+                    
                     const likedStoriesResponse = await fetch(`http://localhost:5234/api/story/likedstories/${userId}`);
                     if (likedStoriesResponse.ok) {
                         const likedStoryIds: number[] = await likedStoriesResponse.json();
@@ -257,46 +268,66 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
         });
     };
 
-    const handlePollOptionChange = async (pollId: number, optionId: number) => {
-        setSelectedPollOption(prevSelected => {
-            const previousOptionId = prevSelected[pollId];
 
-            if (previousOptionId !== undefined) {
-                return prevSelected; // Prevent multiple votes
-            }
 
-            const newSelected = { ...prevSelected, [pollId]: optionId };
+    const toggleVoteStory = async (pollId: number, optionId: number) => {
+        const userId = getUserIdFromCookie();
+        if (userId) {
+            try {
+                // Make the POST request to toggle the vote status
+                const formData = new URLSearchParams();
+                formData.append('userId', userId);
+                formData.append('optionId', optionId.toString());
 
-            // Optimistically update the UI
-            setStories(prevStories => prevStories.map(story => {
-                if (story.id === pollId && story.parts) {
-                    return {
-                        ...story,
-                        parts: story.parts.map(part => {
-                            if (part.id === optionId) {
-                                return { ...part, score: part.score + 1, disabled: false };
-                            } else {
-                                return { ...part, disabled: true };
-                            }
-                        })
-                    };
-                }
-                return story;
-            }));
-
-            // Call the API to update the score in the database
-            axios.post(`http://localhost:5234/api/Part/vote/${optionId}`)
-                .then(response => {
-                    console.log("Vote recorded successfully", response.data);
-                })
-                .catch(error => {
-                    console.error("Error recording vote:", error);
+                const response = await fetch('http://localhost:5234/api/Part/vote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString(),
                 });
 
-            return newSelected;
-        });
-    };
+                if (response.ok) {
+                    // Fetch the user's voted options from the backend
+                    const voteOptionsResponse = await fetch(`http://localhost:5234/api/part/votedpolls/${userId}`);
+                    if (voteOptionsResponse.ok) {
+                        const votedOptionIds: number[] = await voteOptionsResponse.json();
+                        setVotedOptions(new Set(votedOptionIds));
+                        
+                        // Update the UI based on whether the option is voted
+                        const isVoted = votedOptionIds.includes(optionId);
 
+                        // Update the options and their scores
+                        setStories(prevStories =>
+                            prevStories.map(story =>
+                                story.id === pollId
+                                    ? {
+                                        ...story,
+                                        parts: story.parts?.map(part =>
+                                            part.id === optionId
+                                                ? {
+                                                    ...part,
+                                                    score: isVoted ? part.score + 1 : part.score - 1,
+                                                }
+                                                : part
+                                        )
+                                    }
+                                    : story
+                            )
+                        );
+
+                        // Update the selected options state
+                        setSelectedPollOption(prev => ({
+                            ...prev,
+                            [pollId]: isVoted ? null : optionId
+                        }));
+                    }
+                } else {
+                    console.error('Failed to toggle vote status');
+                }
+            } catch (error) {
+                console.error('Error toggling vote status:', error);
+            }
+        }
+    };
 
 
     if (loading) {
@@ -355,8 +386,9 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                                             pollId={story.id}
                                             options={story.parts || []}
                                             selectedOption={selectedPollOption[story.id] || null}
-                                            onOptionSelect={(optionId) => handlePollOptionChange(story.id, optionId)}
+                                            onOptionSelect={(optionId) => toggleVoteStory(story.id, optionId)}
                                             onClose={() => handlePollClick(story.id)}
+                                            votedOptions={votedOptions}
                                         />
                                     )}
                                 </div>

@@ -13,9 +13,10 @@ interface OptionsProps {
     selectedOption: number | null;
     onOptionSelect: (optionId: number) => void;
     onClose: () => void;
+    votedOptions: Set<number>;
 }
 
-const Options: React.FC<OptionsProps> = ({ options, selectedOption, onOptionSelect, onClose }) => {
+const Options: React.FC<OptionsProps> = ({ options, onOptionSelect, onClose, votedOptions }) => {
     const popupRef = useRef<HTMLDivElement>(null);
 
     const handleOptionClick = (optionId: number) => {
@@ -42,7 +43,7 @@ const Options: React.FC<OptionsProps> = ({ options, selectedOption, onOptionSele
             {options.map(option => (
                 <div
                     key={option.id}
-                    className={`poll-option ${selectedOption === option.id ? 'selected' : ''}`}
+                    className={`poll-option ${votedOptions.has(option.id) ? 'selected' : ''}`}
                     onClick={() => handleOptionClick(option.id)}
                 >
                     {option.text} - {option.score} points

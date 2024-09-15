@@ -23,5 +23,6 @@ namespace HackerNews.DataAccess.Entities
 
         public bool IsAdmin { get; set; }
         public List<long> LikedStoryIds { get; set; } = new List<long>();
+        public List<long> PollOptionsVotedIds { get; set; } = new List<long>();
     }
 }

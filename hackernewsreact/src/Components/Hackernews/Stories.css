@@ -75,7 +75,7 @@
 
 
 
-.poll-options {
+/*.poll-options {
     border: 1px solid #ccc;
     padding: 10px;
     border-radius: 5px;
@@ -83,14 +83,16 @@
 }
 
 .poll-option {
-    margin-bottom: 10px; /* Adds space between each option */
+    margin-bottom: 10px;*/ /* Adds space between each option */
+    /*cursor: pointer;
 }
 
     .poll-option label {
-        display: block; /* Ensures each option appears on a new line */
-        font-size: 14px;
+        display: block;*/ /* Ensures each option appears on a new line */
+        /*font-size: 14px;
     }
 
-    .poll-option input[type="radio"] {
-        margin-right: 10px; /* Adds space between the radio button and the label text */
-    }
+    .poll-option.selected {
+        background-color: gray;
+        color: white;
+    }*/

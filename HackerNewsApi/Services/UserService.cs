@@ -48,6 +48,21 @@ namespace HackerNewsApi.Service
         {
             return !await _userRepository.UsernameExistsAsync(username);
         }
+
+        public async Task<List<long>> GetVotedPollsAsync(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+            return user.PollOptionsVotedIds;
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            await _userRepository.UpdateUserAsync(user);
+        }
     }
 
 }
