@@ -133,6 +133,7 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                         break;
                     case 'starred':
                         // Add any additional filtering logic for 'starred' if needed
+                        filteredStories = response.data.filter((story: Story) => starredStories.has(story.id));
                         break;
                 }
 
