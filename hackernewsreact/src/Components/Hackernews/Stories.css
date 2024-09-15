@@ -42,10 +42,12 @@
 .star {
     cursor: pointer;
 }
-
-    .star.starred {
-        filter: invert(85%) sepia(49%) saturate(859%) hue-rotate(0deg) brightness(107%) contrast(102%) drop-shadow(1px 1px 1px yellow);
+    .star.starred{
+    filter: invert(85%) sepia(49%) saturate(859%) hue-rotate(0deg) brightness(107%) contrast(102%) drop-shadow(1px 1px 1px yellow);
     }
+
+
+    
 
 .story-url {
     text-decoration: none;
@@ -73,26 +75,3 @@
     }
 }
 
-
-
-/*.poll-options {
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-}
-
-.poll-option {
-    margin-bottom: 10px;*/ /* Adds space between each option */
-    /*cursor: pointer;
-}
-
-    .poll-option label {
-        display: block;*/ /* Ensures each option appears on a new line */
-        /*font-size: 14px;
-    }
-
-    .poll-option.selected {
-        background-color: gray;
-        color: white;
-    }*/

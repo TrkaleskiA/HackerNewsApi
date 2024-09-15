@@ -78,6 +78,7 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
     const [selectedPollOption, setSelectedPollOption] = useState<Record<number, number | null>>({});
     const [visiblePolls, setVisiblePolls] = useState<Set<number>>(new Set());
     const [votedOptions, setVotedOptions] = useState<Set<number>>(new Set());
+    const [starredStories, setStarredStories] = useState<Set<number>>(new Set());
 
 
     useEffect(() => {
@@ -100,6 +101,12 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                     if (votedOptionsResponse.ok) {
                         const votedoptionsIds: number[] = await votedOptionsResponse.json();
                         setVotedOptions(new Set(votedoptionsIds));
+                    }
+
+                    const starredStoriesResponse = await fetch(`http://localhost:5234/api/story/starredstories/${userId}`)
+                    if (starredStoriesResponse.ok) {
+                        const starredStoryIds: number[] = await starredStoriesResponse.json();
+                        setStarredStories(new Set(starredStoryIds));
                     }
                 }
 
@@ -228,6 +235,43 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                 }
             } catch (error) {
                 console.error('Error toggling like status:', error);
+            }
+        }
+    };
+
+
+    const toggleStarStory = async (storyId: number) => {
+        const userId = getUserIdFromCookie();
+        if (userId) {
+            try {
+                
+                const formData = new URLSearchParams();
+                formData.append('userId', userId);
+                formData.append('storyId', storyId.toString());
+
+                const response = await fetch('http://localhost:5234/api/story/star', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString(),
+                });
+
+                if (response.ok) {
+               
+
+                    const starredStoriesResponse = await fetch(`http://localhost:5234/api/story/starredstories/${userId}`);
+                    if (starredStoriesResponse.ok) {
+                        const starredStoryIds: number[] = await starredStoriesResponse.json();
+                        //const isStarred = starredStoryIds.includes(storyId);
+                        console.log(starredStoryIds)
+                       
+                        setStarredStories(new Set(starredStoryIds));
+
+                    }
+                } else {
+                    console.error('Failed to toggle star status');
+                }
+            } catch (error) {
+                console.error('Error toggling star status:', error);
             }
         }
     };
@@ -400,7 +444,11 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                                 <p style={{ display: 'inline' }} className="comment-button mb-0">{story.descendants || 0} comments</p>
                             </div>
                             <img className="share ms-2" src="../photos/share.png" alt="Share" />
-                            <img className="star ms-2" src="../photos/star.png" alt="Star" />
+                            <img
+                                className={`star ${starredStories.has(story.id) ? 'starred' : ''}`} 
+                                src="../photos/star.png" alt="Star"
+                                onClick={() => toggleStarStory(story.id)}
+                            />
                         </div>
                     </div>
                     <Comments

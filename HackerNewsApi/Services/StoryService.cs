@@ -102,10 +102,47 @@ namespace HackerNewsApi.Services
         }
 
 
-        /*public List<long> GetLikedStories(Guid userId)
+        public async Task StarOrUnstarStoryAsync(Guid userId, long storyId)
         {
-            var user = _userRepository.GetByIdAsync(userId);
-            return user.LikedStoryIds;
-        }*/
+            var user = await _userRepository.GetByIdAsync(userId);
+            var story = await _storyRepository.GetStoryByIdAsync(storyId);
+
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            if (story == null)
+            {
+                throw new Exception("Story not found.");
+            }
+
+            if (user.StarredStoryIds.Contains(storyId))
+            {
+               
+                user.StarredStoryIds.Remove(storyId);
+                
+            }
+            else
+            {
+                
+                user.StarredStoryIds.Add(storyId);
+                
+            }
+
+            await _userRepository.UpdateUserAsync(user);
+            
+        }
+
+
+        public async Task<List<long>> GetStarredStoriesAsync(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+            return user.StarredStoryIds;
+        }
     }
 }

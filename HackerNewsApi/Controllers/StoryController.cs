@@ -94,7 +94,7 @@ namespace HackerNewsApi.Controllers
             return NoContent(); // Success with no content
         }
 
-        [HttpPost("like/{storyId}")]
+       /* [HttpPost("like/{storyId}")]
         public async Task<IActionResult> LikeStory(long storyId)
         {
             var story = await _storyService.GetStoryByIdAsync(storyId);
@@ -109,7 +109,7 @@ namespace HackerNewsApi.Controllers
             await _storyService.UpdateStoryAsync(story);
 
             return Ok(story);
-        }
+        }*/
 
         [HttpPost("like")]
         public async  Task<IActionResult> LikeStory([FromForm] string userId, [FromForm] string storyId)
@@ -146,6 +146,50 @@ namespace HackerNewsApi.Controllers
             {
                 var likedStories = await _storyService.GetLikedStoriesAsync(userId);
                 return Ok(likedStories);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (optional)
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+        [HttpPost("star")]
+        public async Task<IActionResult> StarStory([FromForm] string userId, [FromForm] string storyId)
+        {
+            /*Guid user = new Guid(userId);
+            long story = long.Parse(storyId);
+            _storyService.LikeOrUnlikeStoryAsync(user, story);
+            return Ok();*/
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(storyId))
+            {
+                return BadRequest("Invalid userId or storyId.");
+            }
+
+            Guid userGuid;
+            if (!Guid.TryParse(userId, out userGuid))
+            {
+                return BadRequest("Invalid userId format.");
+            }
+
+            long storyLong;
+            if (!long.TryParse(storyId, out storyLong))
+            {
+                return BadRequest("Invalid storyId format.");
+            }
+
+            await _storyService.StarOrUnstarStoryAsync(userGuid, storyLong);
+            return Ok();
+        }
+
+        [HttpGet("starredstories/{userId}")]
+        public async Task<IActionResult> GetStarredStories(Guid userId)
+        {
+            try
+            {
+                var starredStories = await _storyService.GetStarredStoriesAsync(userId);
+                return Ok(starredStories);
             }
             catch (Exception ex)
             {
