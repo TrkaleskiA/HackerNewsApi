@@ -12,10 +12,12 @@ namespace HackerNewsApi.Services
     public class CommentService : ICommentService
     {
         private readonly ICommentRepository _repository;
+        private readonly IStoryService _storyService;
 
-        public CommentService(ICommentRepository repository)
+        public CommentService(ICommentRepository repository, IStoryService storyService)
         {
             _repository = repository;
+            _storyService = storyService;
         }
 
         // Get comment by ID
@@ -80,7 +82,14 @@ namespace HackerNewsApi.Services
 
             try
             {
+                var parentComment = await _storyService.GetStoryByIdAsync(reply.StoryId);
+                if (parentComment != null)
+                {
+                    await _storyService.UpdateDescendantsAsync(parentComment.Id, 1);
+                }
                 await _repository.AddReplyAsync(reply);
+                
+
                 return reply; // Return the created reply
             }
             catch (Exception ex)
@@ -93,7 +102,6 @@ namespace HackerNewsApi.Services
 
 
 
-
         // Update a comment
         public async Task UpdateCommentAsync(Comment updatedComment)
         {
@@ -101,25 +109,40 @@ namespace HackerNewsApi.Services
 
             if (existingComment != null)
             {
+                // Update basic fields
                 existingComment.Text = updatedComment.Text;
                 existingComment.By = updatedComment.By;
                 existingComment.Time = updatedComment.Time;
 
-                if (updatedComment.Kids != null)
+                // Ensure Kids collection is handled correctly
+                if (updatedComment.Kids != null && updatedComment.Kids.Any())
                 {
-                    var existingKids = existingComment.Kids.ToDictionary(k => k.Id);
-                    foreach (var kid in updatedComment.Kids)
+                    // Initialize existing kids if null
+                    if (existingComment.Kids == null)
                     {
-                        if (existingKids.ContainsKey(kid.Id))
+                        existingComment.Kids = new List<Comment>();
+                    }
+
+                    // Convert existing kids to a dictionary for easier lookup
+                    var existingKidsDict = existingComment.Kids.ToDictionary(k => k.Id);
+
+                    foreach (var updatedKid in updatedComment.Kids)
+                    {
+                        // If the kid (reply) exists, update it
+                        if (existingKidsDict.TryGetValue(updatedKid.Id, out var existingKid))
                         {
-                            existingKids[kid.Id] = kid;
+                            existingKid.Text = updatedKid.Text;
+                            existingKid.By = updatedKid.By;
+                            existingKid.Time = updatedKid.Time;
                         }
                         else
                         {
-                            existingComment.Kids.Add(kid);
+                            // Otherwise, add it as a new kid
+                            existingComment.Kids.Add(updatedKid);
                         }
                     }
 
+                    // Remove kids that are no longer present in the updated comment
                     existingComment.Kids = existingComment.Kids
                         .Where(k => updatedComment.Kids.Any(uc => uc.Id == k.Id))
                         .ToList();
@@ -128,6 +151,7 @@ namespace HackerNewsApi.Services
                 await _repository.UpdateCommentAsync(existingComment);
             }
         }
+
 
         // Update a reply
         public async Task UpdateReplyAsync(Comment updatedReply)

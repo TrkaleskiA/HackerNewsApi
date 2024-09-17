@@ -52,6 +52,20 @@ namespace HackerNewsApi.Services
                 await _storyRepository.AddStoryAsync(story);
             }
         }
+        public async Task UpdateDescendantsAsync(long storyId, int increment)
+        {
+            var story = await _storyRepository.GetStoryByIdAsync(storyId);
+            if (story != null)
+            {
+                story.Descendants = (story.Descendants ?? 0) + increment;
+                await _storyRepository.UpdateStoryAsync(story);
+            }
+            else
+            {
+                throw new Exception($"Story with ID {storyId} not found.");
+            }
+        }
+
 
         // Implementation of the update method
         public async Task UpdateStoryAsync(Story story)

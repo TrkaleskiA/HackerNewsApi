@@ -116,6 +116,7 @@ namespace HackerNews.DataAccess.Repository
         {
             return await _context.Comments
                 .Where(c => c.CommentId == parentId)
+                .Include (c => c.Kids)
                 .ToListAsync(); // No need to include Kids here as they are IDs, not Comment objects
         }
 

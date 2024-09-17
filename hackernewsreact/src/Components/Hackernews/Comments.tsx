@@ -111,16 +111,12 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
     const handleReplySubmit = async () => {
         if (replyText.trim() === '' || replyToCommentId === null) return;
 
-        console.log('Submitting reply with storyId:', storyId);
-        console.log('Submitting reply with CommentId:', replyToCommentId);
-
         try {
-            // Post reply to the API
             const response = await axios.post('http://localhost:5234/api/Comment/addReply', {
                 text: replyText,
                 by: nickname,
                 storyId: storyId,
-                commentId: replyToCommentId, // Ensure this is correct
+                commentId: replyToCommentId,
                 time: Math.floor(Date.now() / 1000),
             });
 
@@ -142,11 +138,18 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                         kids: [...(comment.kids || []), newReply.id]
                     };
                 }
+                console.log(`Comment ${comment.id}`)
+                console.log(`Kids ${comment.kids}`)
+                console.log(`Reply ${newReply.id}`)
+                console.log(`Reply Kids ${newReply.kids}`)
+                
                 return comment;
             }));
 
             // Ensure descendants count is updated
             await onCommentAdded(storyId);
+
+            fetchReplies(replyToCommentId);
 
             setReplyText('');
             setReplyToCommentId(null);
@@ -155,6 +158,8 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
             console.error('Error submitting reply:', error);
         }
     };
+
+
 
     const toggleRepliesVisibility = async (commentId: number) => {
         setExpandedComments(prev => {
@@ -184,21 +189,21 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
         }
     };
 
-    const renderComments = (comments: Comment[], depth = 0) => {
+    const renderComments = (comments: Comment[]) => {
         return (
             <>
                 {comments.map((comment) => {
                     const timeAgo = formatTime(comment.time);
                     const areRepliesVisible = expandedComments.has(comment.id);
                     const replies = repliesMap.get(comment.id) || [];
-
+                  
                     return (
                         <div
                             key={comment.id}
                             className="comment"
                             data-id={comment.id}
                             style={{
-                                marginLeft: `${depth * 20}px`,
+                                marginLeft: `20px`,
                                 borderLeft: '1px lightgray solid',
                                 borderBottom: '1px #f8f6f6 solid',
                                 padding: '10px',
@@ -210,7 +215,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                             </div>
                             <div className="comment-text">{comment.text}</div>
                             <div className="comment-actions">
-                                {comment.kids && comment.kids.length > 0 && (
+                                {comment.kids && comment.kids.length >= 0 && (
                                     <span
                                         className="replies-btn"
                                         onClick={() => toggleRepliesVisibility(comment.id)}
@@ -231,7 +236,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                                 </div>
                             )}
                             <div className="replies-container" style={{ display: areRepliesVisible ? 'block' : 'none' }}>
-                                {renderComments(replies, depth + 1)}
+                                {renderComments(replies)}
                             </div>
                         </div>
                     );
@@ -276,7 +281,11 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                 </div>
                 {loading ? <div>Loading comments...</div> : (
                     <div className="comments-display bg-white">
-                        {renderComments(comments)}
+                        {comments.length === 0 ? (
+                            <div>There are no comments for this story.</div>
+                        ) : (
+                            renderComments(comments)
+                        )}
                     </div>
                 )}
             </div>

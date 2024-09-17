@@ -92,26 +92,23 @@ namespace HackerNewsApi.Controllers
         public async Task<ActionResult<IEnumerable<CommentDto>>> GetCommentsByParentId(long parentId)
         {
             var comments = await _commentService.GetCommentsByParentIdAsync(parentId);
-            if (comments == null || !comments.Any())
-            {
-                return NotFound($"No comments found for parent ID {parentId}.");
-            }
             var commentDtos = MapCommentsToDto(comments);
             return Ok(commentDtos);
         }
 
+
         // Get replies by parent ID
-[HttpGet("replies/byParentId/{parentId}")]
-public async Task<ActionResult<IEnumerable<CommentDto>>> GetRepliesByParentId(long parentId)
-{
-    var replies = await _commentService.GetRepliesByParentIdAsync(parentId);
-    if (replies == null || !replies.Any())
-    {
-        return NotFound($"No replies found for parent ID {parentId}.");
-    }
-    var replyDtos = MapCommentsToDto(replies);
-    return Ok(replyDtos);
-}
+        [HttpGet("replies/byParentId/{parentId}")]
+        public async Task<ActionResult<IEnumerable<CommentDto>>> GetRepliesByParentId(long parentId)
+        {
+            var replies = await _commentService.GetRepliesByParentIdAsync(parentId);
+            if (replies == null || !replies.Any())
+            {
+                return NotFound($"No replies found for parent ID {parentId}.");
+            }
+            var replyDtos = MapCommentsToDto(replies);
+            return Ok(replyDtos);
+        }
 
 
         // Create a comment
