@@ -69,8 +69,23 @@ namespace HackerNewsApi.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult> AddStory([FromBody] Story story)
+        public async Task<ActionResult> AddStory([FromBody] StoryDto storyDto)
         {
+            var story = new Story
+            {
+                Id = storyDto.Id,
+                Title = storyDto.Title,
+                Url = storyDto.Url,
+                By = storyDto.By,
+                Descendants = storyDto.Descendants,
+                Score = storyDto.Score,
+                Time = storyDto.Time,
+                Type = storyDto.Type,
+                Kids = storyDto.Kids != null
+            ? storyDto.Kids.Select(id => new Comment { Id = id }).ToList()
+            : new List<Comment>(),
+                Parts = storyDto.Parts?.Select(p => new Part { Id = p.Id, /* other properties */ }).ToList() // Map poll parts if needed
+            };
             await _storyService.AddStoryAsync(story);
             return CreatedAtAction(nameof(GetStoryById), new { id = story.Id }, story);
         }

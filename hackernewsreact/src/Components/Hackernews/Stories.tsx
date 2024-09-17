@@ -123,7 +123,7 @@ const Stories = ({ filter, timePeriod, sort, searchQuery }: StoriesProps) => {
                         // No additional filtering for 'all'
                         break;
                     case 'hot':
-                        filteredStories = response.data.filter((story: Story) => story.type === 1);
+                        filteredStories = response.data.filter((story: Story) => story.type === 1); //story type 1 are stories
                         break;
                     case 'poll':
                         filteredStories = response.data.filter((story: Story) => story.type === 3);
