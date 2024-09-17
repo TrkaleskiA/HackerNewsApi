@@ -26,3 +26,7 @@
 body {
     background-color: #f8f6f6;
 }
+
+.hide {
+    display: none;
+}

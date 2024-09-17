@@ -13,6 +13,7 @@ namespace HackerNewsApi.Services.ServicesInterfaces
         Task RegisterUserAsync(User user);
         Task<User> LoginAsync(string username, string password);
         Task<bool> CheckUsernameAvailabilityAsync(string username);
-
+        Task<List<long>> GetVotedPollsAsync(Guid userId);
+        Task UpdateUserAsync(User user);
     }
 }

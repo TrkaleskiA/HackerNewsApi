@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HackerNewsApi.Services.ServicesInterfaces;
 using HackerNewsApi.DTOs;
+using HackerNewsApi.Service;
 
 namespace HackerNewsApi.Controllers
 {
@@ -15,10 +16,12 @@ namespace HackerNewsApi.Controllers
     public class PartController : ControllerBase
     {
         private readonly IPartService _partService;
+        private readonly IUserService _userService;
 
-        public PartController(IPartService partService)
+        public PartController(IPartService partService, IUserService userService)
         {
             _partService = partService;
+            _userService = userService;
         }
 
         // GET: api/Part
@@ -142,21 +145,81 @@ namespace HackerNewsApi.Controllers
             return NoContent();
         }
 
-        [HttpPost("vote/{optionId}")]
-        public async Task<IActionResult> VoteForOption(long optionId)
+        /* [HttpPost("vote/{optionId}")]
+         public async Task<IActionResult> VoteForOption(long optionId)
+         {
+             var part = await _partService.GetPartByIdAsync(optionId);
+             if (part == null)
+             {
+                 return NotFound("Poll option not found.");
+             }
+
+             // Increment the score of the selected option
+             part.Score += 1;
+
+             await _partService.UpdatePartAsync(part);
+
+             return Ok(part);
+         }*/
+
+        [HttpPost("vote")]
+        public async Task<IActionResult> VoteForOption([FromForm] string userId, [FromForm] long optionId)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest("Invalid userId.");
+            }
+
+            Guid userGuid;
+            if (!Guid.TryParse(userId, out userGuid))
+            {
+                return BadRequest("Invalid userId format.");
+            }
+
+            var user = await _userService.GetUserByIdAsync(userGuid);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
             var part = await _partService.GetPartByIdAsync(optionId);
             if (part == null)
             {
                 return NotFound("Poll option not found.");
             }
 
-            // Increment the score of the selected option
-            part.Score += 1;
+            if (user.PollOptionsVotedIds.Contains(optionId))
+            {
+                // Unvote
+                user.PollOptionsVotedIds.Remove(optionId);
+                part.Score -= 1;
+            }
+            else
+            {
+                // Vote
+                user.PollOptionsVotedIds.Add(optionId);
+                part.Score += 1;
+            }
 
+            await _userService.UpdateUserAsync(user);  // Save the updated user record
             await _partService.UpdatePartAsync(part);
 
             return Ok(part);
+        }
+
+        [HttpGet("votedpolls/{userId}")]
+        public async Task<IActionResult> GetVotedPolls(Guid userId)
+        {
+            try
+            {
+                var user = await _userService.GetUserByIdAsync(userId);
+                return Ok(user.PollOptionsVotedIds);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (optional)
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

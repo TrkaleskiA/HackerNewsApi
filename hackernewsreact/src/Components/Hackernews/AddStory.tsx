@@ -54,17 +54,17 @@ const AddStory: React.FC = () => {
                 by: nickname,
                 time: Math.floor(Date.now() / 1000),
                 type,
-                descendants: type === 2 ? null : 0 // Set descendants to null for Job type; 0 for Story and Poll
+                descendants: type === 2 ? null : 0 
             };
             console.log('Submitting story:', story);
 
             // Post the story (poll or other)
-            const storyResponse = await axios.post('http://localhost:5234/api/Story', story); // Adjust URL based on your API endpoint
+            const storyResponse = await axios.post('http://localhost:5234/api/Story', story);
             const newStoryId = storyResponse.data.id; // Get the ID of the created story
 
             // If it's a poll, post the poll options (parts)
             if (type === 3 && parts.length >= 2) {
-                const pollParts = parts.map(part => ({    //TO TEST HERE POLL REQUIRED?
+                const pollParts = parts.map(part => ({    
                     text: part.text,
                     type: 'pollopt',
                     pollId: newStoryId, // Set the pollId to the newly created story's ID
@@ -82,11 +82,77 @@ const AddStory: React.FC = () => {
             // Redirect to HackerNews after adding story
             navigate('/hackernews');
         } catch (error) {
-            // Cast the error to AxiosError to access response and other properties
+            
             const axiosError = error as AxiosError;
             console.error('Error adding story:', axiosError.response ? axiosError.response.data : axiosError.message);
         }
     };
+
+    const fetchTopStoriesIds = async () => {
+        const api = 'https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty';
+
+        try {
+            const response = await fetch(api);
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    const fetchTopStories = async (id:number) => {
+        const api = `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`;
+        try {
+            const response = await fetch(api);
+            return await response.json()
+        } catch (error) {
+            console.log(`Error fetching data! ${id}`)
+        }
+    }
+    const mapApiTypeToBackendType = (type: string): number => {
+        switch (type) {
+            case 'story':
+                return 1; 
+            case 'poll':
+                return 3; 
+            case 'job':
+                return 2; 
+            default:
+                return 1; 
+        }
+    }
+    const fetchStories = async () => {
+        const topStories = await fetchTopStoriesIds();
+        //console.log(topStories);
+        for (let i = 0; i < 10; i++) { 
+            const story = await fetchTopStories(topStories[i]);
+            console.log(story);
+            if (story) {
+                const storyObject = {
+                    by: story.by || '',    
+                    title: story.title || '',  
+                    url: story.url || '',    
+                    score: story.score || 0,   
+                    time: story.time || 0,    
+                    descendants: story.descendants,   
+                    type: mapApiTypeToBackendType(story.type || 'story'),  
+                    kids: story.kids || [],   
+                };
+
+                console.log(storyObject.kids)
+
+                try {
+                    const response = await axios.post('http://localhost:5234/api/Story', storyObject);
+                    console.log('Story successfully added:', response.data);
+                } catch (error) {
+                    console.error('Error adding story to the database:', error);
+                }
+            }
+            
+        }
+        
+
+    }
+
 
 
     return (
@@ -126,7 +192,8 @@ const AddStory: React.FC = () => {
                         ))}
                     </div>
                 )}
-                <button type="button" onClick={handleSubmit} disabled={!isValid}>Add Story</button>
+                <button type="button" id="addStory" onClick={handleSubmit} disabled={!isValid}>Add Story</button>
+                <button type="button" id="fetchStory" onClick={fetchStories} className={nickname.toLowerCase() == "admin" ? '' : 'hide'}> Fetch Stories</button>
             </form>
         </div>
     );
