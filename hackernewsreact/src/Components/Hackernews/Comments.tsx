@@ -9,7 +9,7 @@ interface Comment {
     text: string;
     by: string;
     time: number;
-    kids?: number[]; // Array of IDs
+    kids?: number[];
     storyId?: number;
     commentId?: number;
 }
@@ -43,7 +43,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
     }, [navigate]);
 
     const fetchComments = async () => {
-        if (commentsMap.has(storyId)) return; // Skip fetching if already loaded
+        if (commentsMap.has(storyId)) return;
 
         setLoading(true);
         try {
@@ -90,16 +90,16 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
         }
     };
 
-    useEffect(() => {
+    /*useEffect(() => {
         // Debugging to ensure that replyToCommentId is being set correctly
         if (replyToCommentId !== null && replyToCommentId > 0) {
             console.log(`Replying to comment with id: ${replyToCommentId}`);
         }
-    }, [replyToCommentId]);
+    }, [replyToCommentId]);*/
 
     const handleReplyClick = (parentId: number) => {
-        // Make sure we set the correct reply ID, regardless of new/old comment
-        console.log('Setting replyToCommentId:', parentId);
+        /*// Make sure we set the correct reply ID, regardless of new/old comment
+        console.log('Setting replyToCommentId:', parentId);*/
         setReplyToCommentId(parentId);
         setReplyText('');
     };
@@ -122,7 +122,6 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
 
             const newReply = response.data;
 
-            // Update the replies state with the new reply
             setRepliesMap(prevMap => {
                 const updatedMap = new Map(prevMap);
                 const replies = updatedMap.get(replyToCommentId) || [];
@@ -130,25 +129,35 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                 return updatedMap;
             });
 
-            // Update the parent comment's kids list
-            setComments(prevComments => prevComments.map(comment => {
-                if (comment.id === replyToCommentId) {
-                    return {
-                        ...comment,
-                        kids: [...(comment.kids || []), newReply.id]
-                    };
-                }
-                console.log(`Comment ${comment.id}`)
-                console.log(`Kids ${comment.kids}`)
-                console.log(`Reply ${newReply.id}`)
-                console.log(`Reply Kids ${newReply.kids}`)
-                
-                return comment;
-            }));
+            setComments(prevComments => {
+                const updatedComments = [...prevComments];
+                const findAndUpdateComment = (comments: Comment[]): Comment[] => {
+                    return comments.map(comment => {
+                        if (comment.id === replyToCommentId) {
+                            return {
+                                ...comment,
+                                kids: [...(comment.kids || []), newReply.id]
+                            };
+                        } else if (comment.kids && comment.kids.length > 0) {
+                            const replies = repliesMap.get(comment.id) || [];
+                            if (replies.length > 0) {
+                                const updatedReplies = findAndUpdateComment(replies);
+                                setRepliesMap(prevMap => {
+                                    const updatedMap = new Map(prevMap);
+                                    updatedMap.set(comment.id, updatedReplies);
+                                    return updatedMap;
+                                });
+                            }
+                        }
+                        return comment;
+                    });
+                };
 
-            // Ensure descendants count is updated
+                return findAndUpdateComment(updatedComments);
+            });
+
             await onCommentAdded(storyId);
-
+            
             fetchReplies(replyToCommentId);
 
             setReplyText('');
@@ -158,6 +167,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
             console.error('Error submitting reply:', error);
         }
     };
+
 
 
 
@@ -215,7 +225,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
                             </div>
                             <div className="comment-text">{comment.text}</div>
                             <div className="comment-actions">
-                                {comment.kids && comment.kids.length >= 0 && (
+                                {comment.kids && comment.kids.length > 0 &&  (
                                     <span
                                         className="replies-btn"
                                         onClick={() => toggleRepliesVisibility(comment.id)}
