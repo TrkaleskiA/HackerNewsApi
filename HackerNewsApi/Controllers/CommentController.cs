@@ -195,6 +195,19 @@ namespace HackerNewsApi.Controllers
             }
         }
 
+        [HttpGet("getlastcomment")]
+        public async Task<ActionResult<long>> GetLastComemntId()
+        {
+            var lastStory = await _commentService.GetLastInsertedCommentAsync();
+
+            if (lastStory == null)
+            {
+                return NotFound("No stories found.");
+            }
+
+            return Ok(lastStory.Id);
+        }
+
 
 
     }

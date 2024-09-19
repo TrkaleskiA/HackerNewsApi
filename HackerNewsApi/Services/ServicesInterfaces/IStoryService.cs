@@ -21,5 +21,6 @@ namespace HackerNewsApi.Services.ServicesInterfaces
 
         Task<List<long>> GetStarredStoriesAsync(Guid userId);
         Task StarOrUnstarStoryAsync(Guid userId, long storyId);
+        Task<Story> GetLastInsertedStoryAsync();
     }
 }

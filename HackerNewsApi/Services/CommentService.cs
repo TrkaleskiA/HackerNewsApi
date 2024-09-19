@@ -3,6 +3,7 @@ using HackerNews.DataAccess.Repository;
 using HackerNews.DataAccess.Repository.RepositoryInterfaces;
 using HackerNewsApi.DTOs;
 using HackerNewsApi.Services.ServicesInterfaces;
+using Microsoft.EntityFrameworkCore.Migrations;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -166,6 +167,11 @@ namespace HackerNewsApi.Services
 
                 await _repository.UpdateReplyAsync(existingReply);
             }
+        }
+
+        public async Task<Comment> GetLastInsertedCommentAsync()
+        {
+            return await _repository.GetLastInsertedCommentAsync();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using HackerNews.DataAccess.Entities;
+using HackerNews.DataAccess.Repository.RepositoryInterfaces;
 using HackerNewsApi.DTOs;
 using HackerNewsApi.Services;
 using HackerNewsApi.Services.ServicesInterfaces;
@@ -13,10 +14,12 @@ namespace HackerNewsApi.Controllers
     public class StoryController : ControllerBase
     {
         private readonly IStoryService _storyService;
+        private readonly IStoryRepository _storyRepository;
 
-        public StoryController(IStoryService storyService)
+        public StoryController(IStoryService storyService, IStoryRepository storyRepository)
         {
             _storyService = storyService;
+            _storyRepository = storyRepository;
         }
 
         [HttpGet("{id}")]
@@ -211,6 +214,41 @@ namespace HackerNewsApi.Controllers
                 // Log the exception (optional)
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
+        }
+
+        [HttpPost("fetchstories")]
+        public async Task<ActionResult> FetchStory([FromBody] StoryDto storyDto)
+        {
+            var story = new Story
+            {
+                Id = storyDto.Id,
+                Title = storyDto.Title,
+                Url = storyDto.Url,
+                By = storyDto.By,
+                Descendants = storyDto.Descendants,
+                Score = storyDto.Score,
+                Time = storyDto.Time,
+                Type = storyDto.Type,
+                Kids = storyDto.Kids != null
+            ? storyDto.Kids.Select(id => new Comment { Id = id }).ToList()
+            : new List<Comment>(),
+                Parts = storyDto.Parts?.Select(p => new Part { Id = p.Id, /* other properties */ }).ToList() // Map poll parts if needed
+            };
+            await _storyService.AddStoryAsync(story);
+            return CreatedAtAction(nameof(GetStoryById), new { id = story.Id }, story);
+        }
+
+        [HttpGet("getlaststory")]
+        public async Task<ActionResult<long>> GetLastStoryId()
+        {
+            var lastStory = await _storyService.GetLastInsertedStoryAsync();
+
+            if (lastStory == null)
+            {
+                return NotFound("No stories found.");
+            }
+
+            return Ok(lastStory.Id);
         }
     }
 }

@@ -16,5 +16,6 @@ namespace HackerNews.DataAccess.Repository.RepositoryInterfaces
         Task AddReplyAsync(Comment reply);
         Task UpdateCommentAsync(Comment comment);
         Task UpdateReplyAsync(Comment reply);
+        Task<Comment> GetLastInsertedCommentAsync();
     }
 }

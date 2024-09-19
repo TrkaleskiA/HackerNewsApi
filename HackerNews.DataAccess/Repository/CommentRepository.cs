@@ -120,5 +120,10 @@ namespace HackerNews.DataAccess.Repository
                 .ToListAsync(); // No need to include Kids here as they are IDs, not Comment objects
         }
 
+        public async Task<Comment> GetLastInsertedCommentAsync()
+        {
+            return await _context.Comments.OrderByDescending(s => s.Id).FirstOrDefaultAsync();
+        }
+
     }
 }

@@ -71,5 +71,10 @@ namespace HackerNews.DataAccess.Repository
             _context.SaveChanges();
         }
 
+        public async Task<Story> GetLastInsertedStoryAsync()
+        {
+            return await _context.Stories.OrderByDescending(s => s.Id).FirstOrDefaultAsync();
+        }
+
     }
 }

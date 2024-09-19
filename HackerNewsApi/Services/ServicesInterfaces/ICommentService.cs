@@ -20,5 +20,6 @@ namespace HackerNewsApi.Services.ServicesInterfaces
         Task UpdateReplyAsync(Comment reply);
         Task<IEnumerable<Comment>> GetRepliesByParentIdAsync(long commentId);
         Task<Comment>AddReplyAsync(CommentDto replyDto);
+        Task<Comment> GetLastInsertedCommentAsync();
     }
 }

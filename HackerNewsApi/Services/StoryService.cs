@@ -158,5 +158,9 @@ namespace HackerNewsApi.Services
             }
             return user.StarredStoryIds;
         }
+        public async Task<Story> GetLastInsertedStoryAsync()
+        {
+            return await _storyRepository.GetLastInsertedStoryAsync();
+        }
     }
 }

@@ -3,6 +3,8 @@ import axios, { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
+
+
 const AddStory: React.FC = () => {
     const [title, setTitle] = useState('');
     const [url, setUrl] = useState('');
@@ -99,13 +101,23 @@ const AddStory: React.FC = () => {
         }
     };
 
+    const fetchComments = async (id:number) => {
+        const api = `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`
+        try {
+            const response = await fetch(api);
+            return await response.json();
+        } catch (error) {
+            console.log(`Error fetching data!`)
+        }
+    }
+
     const fetchTopStories = async (id:number) => {
         const api = `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`;
         try {
             const response = await fetch(api);
             return await response.json()
         } catch (error) {
-            console.log(`Error fetching data! ${id}`)
+            console.log(`Error fetching data!`)
         }
     }
     const mapApiTypeToBackendType = (type: string): number => {
@@ -133,19 +145,53 @@ const AddStory: React.FC = () => {
                     url: story.url || '',    
                     score: story.score || 0,   
                     time: story.time || 0,    
-                    descendants: story.descendants,   
+                    /*descendants: story.descendants, */  
                     type: mapApiTypeToBackendType(story.type || 'story'),  
-                    kids: story.kids || [],   
+                       
                 };
-
-                console.log(storyObject.kids)
+                const kids = story.kids;
+                console.log(storyObject)
+                console.log(kids)
 
                 try {
-                    const response = await axios.post('http://localhost:5234/api/Story', storyObject);
+                    const response = await axios.post('http://localhost:5234/api/Story/fetchstories', storyObject);
                     console.log('Story successfully added:', response.data);
                 } catch (error) {
                     console.error('Error adding story to the database:', error);
                 }
+
+                const lastStoryId = await axios.get('http://localhost:5234/api/Story/getlaststory');
+                console.log(lastStoryId.data)
+                
+
+                for (let j = 0; j < /*kids.length*/ 5; j++) {
+                    const comment = await fetchComments(kids[j])
+                    console.log(comment);
+                    if (comment) {
+                        const commentObject = {
+                            text: comment.text,
+                            by: comment.by,
+                            storyId: lastStoryId.data,
+                            time: comment.time,
+                            type: comment.type,
+                            
+                        };
+                        console.log(commentObject);
+                        console.log(comment.kids);
+                        try {
+                            const response = await axios.post('http://localhost:5234/api/Comment', commentObject);
+                            console.log('Comment successfully added:', response.data);
+                            const lastCommentId = await axios.get('http://localhost:5234/api/Comment/getlastcomment')
+                            console.log(lastCommentId.data)
+                            if (comment.kids && comment.kids.length > 0) {
+                                await insertReplies(comment.kids, lastCommentId.data, lastStoryId.data);
+                            }
+                        } catch (error) {
+                            console.error('Error adding comment to the database:', error);
+                        }
+                    };
+                }
+
             }
             
         }
@@ -153,6 +199,38 @@ const AddStory: React.FC = () => {
 
     }
 
+    const insertReplies = async (replyIds: Array<number>, parentCommentId: number, storyId: number) => {
+        for (let k = 0; k < /*replyIds.length*/ 5; k++) {
+            const reply = await fetchComments(replyIds[k]);
+
+            if (reply) {
+                const replyObject = {
+                    text: reply.text,
+                    by: reply.by,
+                    storyId: storyId,           // Link to the same story
+                    commentId: parentCommentId, // Link to the parent comment
+                    time: reply.time,
+                    type: reply.type,
+                };
+
+                try {
+                    const replyResponse = await axios.post('http://localhost:5234/api/Comment/addReply', replyObject);
+                    console.log('Reply successfully added:', replyResponse.data);
+                    const lastCommentId = await axios.get('http://localhost:5234/api/Comment/getlastcomment')
+                    console.log(lastCommentId.data)
+                    // Handle nested replies (reply.kids)
+                    if (reply.kids && reply.kids.length > 0) {
+                        await insertReplies(reply.kids, lastCommentId.data, storyId);
+                    }
+                } catch (error) {
+                    console.error('Error adding reply to the database:', error);
+                }
+            }
+        }
+    };
+
+
+    
 
 
     return (
