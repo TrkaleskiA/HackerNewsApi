@@ -90,16 +90,7 @@ const Comments: React.FC<CommentsProps> = ({ storyId, visibleComments, onComment
         }
     };
 
-    /*useEffect(() => {
-        // Debugging to ensure that replyToCommentId is being set correctly
-        if (replyToCommentId !== null && replyToCommentId > 0) {
-            console.log(`Replying to comment with id: ${replyToCommentId}`);
-        }
-    }, [replyToCommentId]);*/
-
     const handleReplyClick = (parentId: number) => {
-        /*// Make sure we set the correct reply ID, regardless of new/old comment
-        console.log('Setting replyToCommentId:', parentId);*/
         setReplyToCommentId(parentId);
         setReplyText('');
     };
